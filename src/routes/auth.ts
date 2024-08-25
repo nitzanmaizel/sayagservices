@@ -1,5 +1,6 @@
-import express, { Request, Response } from 'express';
-import { authUrl, oAuth2Client } from '../config/oauth2Client';
+import express, { Request, Response, NextFunction } from 'express';
+import { oAuth2Client } from '../config/oauth2Client';
+import { logoutRoute } from '../middleware/authRoute';
 
 const router = express.Router();
 
@@ -19,15 +20,16 @@ router.get('/oauth2callback', async (req: Request, res: Response) => {
     req.session.tokens = tokens;
 
     oAuth2Client.setCredentials(tokens);
-    res.redirect('/api/v1/docs');
+
+    res.redirect('/');
   } catch (error) {
     console.error('Error during OAuth2 callback:', error);
     res.status(500).send('Authentication error');
   }
 });
 
-router.get('/', (_: Request, res: Response) => {
-  res.send(`<h1>Google Docs API</h1><a href=${authUrl}>Login</a>`);
+router.get('/logout', (req: Request, res: Response, next: NextFunction) => {
+  return logoutRoute(req, res, next);
 });
 
 export default router;

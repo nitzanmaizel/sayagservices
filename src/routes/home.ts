@@ -4,7 +4,7 @@ const router = Router();
 //
 
 router.get('/home', (req: Request, res: Response) => {
-  console.log(req.body);
+  console.log(req.session);
 
   res.send('Welcome to the Home Page!');
 });

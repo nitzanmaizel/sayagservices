@@ -23,7 +23,7 @@ export async function createDocRoute(
 
     const result = await createDoc(docs, title);
     if (result.error) {
-      throw new Error(result.error);
+      return next(result.error);
     }
     res.status(201).json({ docId: result.docId, docData: result.docData });
   } catch (error) {
@@ -35,15 +35,20 @@ export async function createDocRoute(
  * Controller to retrieve a Google Doc by its ID.
  * @param {Request} req - Express request object.
  * @param {Response} res - Express response object.
- * @returns {Promise<Response>} - A promise that resolves to an Express response object.
+ * @param {NextFunction} next - Express next middleware function.
+ * @returns {Promise<Response | void>} - A promise that resolves to an Express response object or void.
  */
-export async function getDocRoute(req: Request, res: Response): Promise<Response> {
+export async function getDocRoute(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> {
   const docs = google.docs({ version: 'v1', auth: oAuth2Client });
   const { documentId } = req.params;
 
   const result = await getDocById(docs, documentId);
   if (result.error) {
-    return res.status(500).json({ error: result.error });
+    return next(result.error); // Pass the error to the global error handler
   }
   return res.status(200).json({ docData: result.docData });
 }

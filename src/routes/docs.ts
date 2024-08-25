@@ -7,8 +7,8 @@ router.get('/docs/create', createDocRoute);
 router.get('/docs/:documentId', getDocRoute);
 router.put('/docs/:documentId', updateDocRoute);
 
-router.get('/docs', (_: Request, res: Response) => {
-  res.send('This is the Documentation Page!');
+router.get('/docs', (req: Request, res: Response) => {
+  res.json({ page: 'This is the Documentation Page!', userInfo: req.session.userInfo });
 });
 
 export default router;
