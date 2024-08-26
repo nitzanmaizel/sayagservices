@@ -1,10 +1,32 @@
 import { docs_v1 } from 'googleapis';
 
-// Define the types for the HeaderTextLine
 interface HeaderTextLine {
   text: string;
   fontSize: number;
   bold: boolean;
+}
+
+export interface TextOptions {
+  fontSize: number;
+  bold: boolean;
+  borderTop?: docs_v1.Schema$ParagraphBorder; // Optional since it's conditionally used
+  indentFirstLine?: docs_v1.Schema$Dimension;
+  direction?: string;
+}
+
+interface TableCell {
+  text: string;
+  bold?: boolean;
+  underline?: boolean;
+}
+
+interface TableRow {
+  cells: TableCell[];
+}
+
+export interface TableData {
+  title: string;
+  rows: TableRow[];
 }
 
 export const HeaderTextLine: HeaderTextLine[] = [

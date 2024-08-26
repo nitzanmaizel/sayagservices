@@ -1,7 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
 import { google } from 'googleapis';
+import { Request, Response, NextFunction } from 'express';
 import { createDoc, getDocById, updateDocById } from '../services/googleDocsService';
 import { oAuth2Client } from '../config/oauth2Client';
+import { TableData } from '../constants/docLayoutRequest';
+import { normalizeLineBreaks } from '../utils/docsUtils';
 
 /**
  * Controller to handle the creation of a Google Doc.
@@ -18,9 +20,23 @@ export async function createDocRoute(
   try {
     oAuth2Client.setCredentials(req.session.tokens);
     const docs = google.docs({ version: 'v1', auth: oAuth2Client });
-    const { title } = req.body;
 
-    const result = await createDoc(docs, title);
+    const { title, tableTitle, rows } = req.body;
+
+    const tableData: TableData = {
+      title: tableTitle + '\n\n',
+      rows: rows.map((row: string[]) => {
+        return {
+          cells: [
+            { text: normalizeLineBreaks(row[0]), bold: true, underline: true },
+            { text: normalizeLineBreaks(row[1]), bold: false, underline: false },
+            { text: normalizeLineBreaks(row[2]), bold: false, underline: false },
+          ],
+        };
+      }),
+    };
+
+    const result = await createDoc(docs, title, tableData);
     if (result.error) {
       return next(result.error);
     }

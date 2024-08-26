@@ -160,7 +160,7 @@ a:hover {
 
 /* Forms */
 form {
-  max-width: 400px;
+  max-width: 100%;
   margin: 0 auto;
   background: #fff;
   padding: 20px;
@@ -202,11 +202,16 @@ button:hover {
   background-color: #218838;
 }
 
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 /* Layout */
 .container {
   max-width: 960px;
   margin: 0 auto;
-  height: calc(100vh - 105px - 50px);
+  min-height: calc(100vh - 105px - 50px);
 }
 
 ul {

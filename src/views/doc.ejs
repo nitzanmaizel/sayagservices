@@ -10,13 +10,37 @@
     <%- include('navbar') %>
     <div class="container">
       <h1>Create a New Document</h1>
-      <form action="/api/v1/docs/create" method="POST">
-        <label for="title">Document Title:</label>
+      <form style="direction: rtl" action="/api/v1/docs/create" method="POST" id="document-form">
+        <label for="title">שם המסמך:</label>
         <input type="text" id="title" name="title" required />
 
-        <button type="submit">Create Document</button>
+        <!-- Table Title -->
+        <label for="tableTitle">לכבוד:</label>
+        <input type="text" id="tableTitle" name="tableTitle" required />
+
+        <!-- Container for the dynamic rows -->
+        <div id="table-rows" style="display: flex">
+          <div class="table-row">
+            <h3>שורה 1</h3>
+            <label for="row1cell1">מוצר:</label>
+            <input type="text" name="rows[0][0]" required />
+
+            <label for="row1cell2">תיאור:</label>
+            <textarea rows="4" type="text" name="rows[0][1]" required></textarea>
+
+            <label for="row1cell3">מחיר:</label>
+            <input type="text" name="rows[0][2]" required />
+
+            <button type="button" class="remove-row">מחיקת שורה</button>
+          </div>
+        </div>
+
+        <button type="button" id="add-row">הוספת שורה</button>
+        <button type="submit" id="submit-button">יצירת מסמך</button>
       </form>
     </div>
     <%- include('footer') %>
+
+    <script src="/js/tableDocs.js"></script>
   </body>
 </html>

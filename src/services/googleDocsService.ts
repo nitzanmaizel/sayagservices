@@ -1,8 +1,9 @@
 import { docs_v1 } from 'googleapis';
-import { DOC_STYLE_REQUESTS, INITIAL_TEXT } from '../constants/docStyleRequests';
 import { createHeader } from './googleDocsHeader';
 import { createFooter } from './googleDocsFooter';
 import { createTable } from './googleDocsTable';
+import { TableData, TextOptions } from '../constants/docLayoutRequest';
+import { DOC_STYLE_REQUESTS, INITIAL_TEXT } from '../constants/docStyleRequests';
 
 /**
  * Creates a new Google Doc with the specified title.
@@ -11,27 +12,28 @@ import { createTable } from './googleDocsTable';
  * @returns {Promise<{ docId?: string, docData?: docs_v1.Schema$Document, error?: any }>}
  *          - A promise that resolves to an object containing either the document ID and data, or an error.
  */
+
 export async function createDoc(
   docs: docs_v1.Docs,
-  title: string
+  title: string,
+  tableData: TableData
 ): Promise<{ docId?: string; docData?: docs_v1.Schema$Document; error?: any }> {
   try {
     const createResponse = await docs.documents.create({ requestBody: { title } });
     const documentId = createResponse.data.documentId;
 
-    if (documentId) {
-      await initializeDocument(documentId, docs);
-
-      const docResponse = await docs.documents.get({ documentId });
-      await createHeader(documentId, docs);
-      await createTable(documentId, docs);
-      await createFooter(documentId, docs);
-      return { docId: documentId, docData: docResponse.data };
-    } else {
+    if (!documentId) {
       throw new Error('Document ID not found in response');
     }
+
+    await initializeDocument(documentId, docs);
+
+    const docResponse = await docs.documents.get({ documentId });
+    await createHeader(documentId, docs);
+    await createTable(documentId, docs, tableData);
+    await createFooter(documentId, docs);
+    return { docId: documentId, docData: docResponse.data };
   } catch (error) {
-    console.error('Error creating document:', error);
     return { error };
   }
 }
@@ -43,10 +45,16 @@ export async function createDoc(
  * @returns {Promise<void>} - A promise that resolves when the document is initialized.
  */
 export async function initializeDocument(documentId: string, docs: docs_v1.Docs): Promise<void> {
-  const insertInitialTextRequest = [{ insertText: { location: { index: 1 }, text: INITIAL_TEXT } }];
+  try {
+    const insertInitialTextRequest = [
+      { insertText: { location: { index: 1 }, text: INITIAL_TEXT } },
+    ];
 
-  await updateDocById(docs, documentId, insertInitialTextRequest);
-  await updateDocById(docs, documentId, DOC_STYLE_REQUESTS);
+    await updateDocById(docs, documentId, insertInitialTextRequest);
+    await updateDocById(docs, documentId, DOC_STYLE_REQUESTS);
+  } catch (error) {
+    throw new Error('Error initializing document: ' + error);
+  }
 }
 
 /**
@@ -64,7 +72,6 @@ export async function getDocById(
     const docResponse = await docs.documents.get({ documentId });
     return { docData: docResponse.data };
   } catch (error) {
-    console.error('Error retrieving document:', error);
     return { error };
   }
 }
@@ -91,17 +98,8 @@ export async function updateDocById(
     const docResponse = await docs.documents.get({ documentId });
     return { docData: docResponse.data };
   } catch (error) {
-    console.error('Error updating document:', error);
     return { error };
   }
-}
-
-interface TextOptions {
-  fontSize: number;
-  bold: boolean;
-  borderTop?: docs_v1.Schema$ParagraphBorder; // Optional since it's conditionally used
-  indentFirstLine?: docs_v1.Schema$Dimension;
-  direction?: string;
 }
 
 /**

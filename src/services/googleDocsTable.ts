@@ -1,23 +1,9 @@
 import { docs_v1 } from 'googleapis';
 import { getTextRequest, updateDocById } from './googleDocsService';
-
-interface TableCell {
-  text: string;
-  bold?: boolean;
-  underline?: boolean;
-}
-
-interface TableRow {
-  cells: TableCell[];
-}
-
-interface TableData {
-  title: string;
-  rows: TableRow[];
-}
+import { TableData } from '../constants/docLayoutRequest';
+import { getCurrentFormattedDate } from '../utils/docsUtils';
 
 const date: string = getCurrentFormattedDate();
-
 const PAGE_TITLE = `לכבוד:\n`;
 const DATE_TITLE = `תאריך ההצעה: ${date}\n`;
 
@@ -31,7 +17,7 @@ const DATE_TITLE = `תאריך ההצעה: ${date}\n`;
 export async function createTable(
   documentId: string,
   docs: docs_v1.Docs,
-  tableData: TableData = tableDataDefault,
+  tableData: TableData,
   index: number = 1
 ): Promise<void> {
   let lastDocIndex = index;
@@ -138,7 +124,6 @@ export async function createTable(
           requests.push(textStyleRequest);
         }
 
-        // Adjust the indices for subsequent insertions
         for (let j = rowIndex * tableColumns + cellIndex + 1; j < adjustedIndices.length; j++) {
           adjustedIndices[j] += cell.text.length;
         }
@@ -151,117 +136,7 @@ export async function createTable(
         requests: requests,
       },
     });
-
-    console.log('Added styled table and text to the document.');
   } catch (error) {
     console.error('Error creating table:', (error as Error).message);
   }
 }
-
-export async function createTableCells(
-  docs: docs_v1.Docs,
-  documentId: string,
-  tableCells: TableCell[],
-  lastIndex: number
-): Promise<number> {
-  let internalLastIndex = lastIndex;
-  const tableTextRequests: docs_v1.Schema$Request[] = tableCells.flatMap(
-    ({ text, bold, underline }) => {
-      const startIndex = internalLastIndex;
-      const endIndex = startIndex + text.length + 2;
-      internalLastIndex = endIndex;
-
-      return [
-        {
-          insertText: { text, location: { index: startIndex } },
-        },
-        {
-          updateTextStyle: {
-            range: { startIndex, endIndex },
-            textStyle: {
-              fontSize: { magnitude: 11, unit: 'PT' },
-              weightedFontFamily: { fontFamily: 'Arial' },
-              bold,
-              underline,
-            },
-            fields: 'fontSize,weightedFontFamily,bold,underline',
-          },
-        },
-        {
-          updateParagraphStyle: {
-            range: { startIndex, endIndex },
-            paragraphStyle: {
-              direction: 'RIGHT_TO_LEFT',
-              indentStart: { magnitude: 0, unit: 'PT' },
-              indentEnd: { magnitude: 0, unit: 'PT' },
-              indentFirstLine: {
-                magnitude: 0,
-                unit: 'PT',
-              },
-            },
-            fields: 'direction,indentFirstLine,indentStart,indentEnd',
-          },
-        },
-      ];
-    }
-  );
-
-  await updateDocById(docs, documentId, tableTextRequests);
-  internalLastIndex++;
-
-  return internalLastIndex;
-}
-
-export function getCurrentFormattedDate() {
-  const today = new Date();
-  const day = today.getDate();
-  const month = today.getMonth() + 1;
-  const year = today.getFullYear().toString().slice(-2);
-
-  const formattedDate = `${day}/${month}/${year}`;
-  return formattedDate;
-}
-
-export const tableDataDefault: TableData = {
-  title: 'מועדון האוהדים הפועל קטמון\n\n',
-  rows: [
-    {
-      cells: [
-        {
-          text: 'מכונת קרח תוצרת איטליה חברת aristarco',
-          bold: true,
-          underline: true,
-        },
-        {
-          text: 'דגם cp 40.15\nרוחב 50 ס"מ\nעומק 59 ס"מ\nגובה 69 ס"מ ללא רגליים\nפאזה 1\n40 קילו יצור ביממה\nתא אחסון 15 ק"ג\nכולל מרכך הובלה והרכבה',
-          bold: false,
-          underline: false,
-        },
-        {
-          text: '6700 ש"ח לא כולל מע"מ',
-          bold: false,
-          underline: false,
-        },
-      ],
-    },
-    {
-      cells: [
-        {
-          text: 'מכונת קרח תוצרת איטליה חברת aristarco',
-          bold: true,
-          underline: true,
-        },
-        {
-          text: 'דגם cp 50.25\nרוחב 50 ס"מ\nעומק 59 ס"מ\nגובה 80 ס"מ ללא רגליים\nפאזה 1\n50 קילו יצור ביממה\nתא אחסון 25 ק"ג\nכולל מרכך הובלה והרכבה',
-          bold: false,
-          underline: false,
-        },
-        {
-          text: '7800 ש"ח לא כולל מע"מ',
-          bold: false,
-          underline: false,
-        },
-      ],
-    },
-  ],
-};
