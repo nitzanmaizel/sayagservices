@@ -2,21 +2,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { oAuth2Client } from '../config/oauth2Client';
 import rateLimit from 'express-rate-limit';
-import { google } from 'googleapis';
 
 // Middleware to protect routes by ensuring the user is authenticated.
 const authRoute = async (req: Request, res: Response, next: NextFunction) => {
   if (req.session && req.session.tokens) {
     try {
       oAuth2Client.setCredentials(req.session.tokens);
-      const oauth2 = google.oauth2('v2');
-
-      const userInfoResponse = await oauth2.userinfo.get({ auth: oAuth2Client });
-      const userInfo = userInfoResponse.data;
-      if (userInfo) {
-        const { id, email, name, picture } = userInfo;
-        req.session.userInfo = { id, email, name, picture };
-      }
 
       next();
     } catch (error) {

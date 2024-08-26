@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { oAuth2Client } from '../config/oauth2Client';
 import { logoutRoute } from '../middleware/authRoute';
+import { google } from 'googleapis';
 
 const router = express.Router();
 
@@ -20,6 +21,15 @@ router.get('/oauth2callback', async (req: Request, res: Response) => {
     req.session.tokens = tokens;
 
     oAuth2Client.setCredentials(tokens);
+
+    const oauth2 = google.oauth2('v2');
+
+    const userInfoResponse = await oauth2.userinfo.get({ auth: oAuth2Client });
+    const userInfo = userInfoResponse.data;
+    if (userInfo) {
+      const { id, email, name, picture } = userInfo;
+      req.session.userInfo = { id, email, name, picture };
+    }
 
     res.redirect('/');
   } catch (error) {
