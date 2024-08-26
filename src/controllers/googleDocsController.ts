@@ -18,13 +18,13 @@ export async function createDocRoute(
   try {
     oAuth2Client.setCredentials(req.session.tokens);
     const docs = google.docs({ version: 'v1', auth: oAuth2Client });
-    // const { title } = req.body;
-    const title = 'New Document';
+    const { title } = req.body;
 
     const result = await createDoc(docs, title);
     if (result.error) {
       return next(result.error);
     }
+
     res.status(201).json({ docId: result.docId, docData: result.docData });
   } catch (error) {
     next(error);

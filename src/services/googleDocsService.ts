@@ -1,5 +1,7 @@
 import { docs_v1 } from 'googleapis';
 import { DOC_STYLE_REQUESTS, INITIAL_TEXT } from '../constants/docStyleRequests';
+import { createHeader } from './googleDocsHeader';
+import { createFooter } from './googleDocsFooter';
 
 /**
  * Creates a new Google Doc with the specified title.
@@ -20,6 +22,8 @@ export async function createDoc(
       await initializeDocument(documentId, docs);
 
       const docResponse = await docs.documents.get({ documentId });
+      await createHeader(documentId, docs);
+      await createFooter(documentId, docs);
       return { docId: documentId, docData: docResponse.data };
     } else {
       throw new Error('Document ID not found in response');

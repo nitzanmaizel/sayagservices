@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { authUrl } from '../config/oauth2Client';
+import authRoute from '../middleware/authRoute';
 
 const router = express.Router();
 
@@ -15,6 +16,8 @@ router.get('/', (req: Request, res: Response) => {
 router.get('/login', (_req: Request, res: Response) => {
   res.render('login', { authUrl, userInfo: null });
 });
+
+router.use(authRoute);
 
 // Create document page route
 router.get('/doc', (req: Request, res: Response) => {

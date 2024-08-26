@@ -1,6 +1,6 @@
-<nav class="navbar">
+<nav class="navbar text-center">
   <div class="navbar-logo">
-    <a href="/home"><img src="/img/logo.png" width="115" alt="Logo" /></a>
+    <a href="/"><img src="/img/logo.png" width="105" alt="Logo" /></a>
   </div>
   <div>
     <h1 class="navbar-title">Sayag Services</h1>
@@ -15,8 +15,8 @@
         style="border-radius: 50%; margin-right: 10px"
       />
       <span>Welcome, <%= userInfo?.name %>!</span>
-      <div><a href="/auth/logout">Logout</a></div>
     </div>
+    <div class="justify-center"><a href="/auth/logout">Logout</a></div>
     <% } else { %>
     <a href="/login" class="login-btn">Login</a>
     <% } %>

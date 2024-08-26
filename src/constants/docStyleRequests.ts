@@ -4,7 +4,7 @@ export const DOC_STYLE_REQUESTS = [
   {
     updateDocumentStyle: {
       documentStyle: {
-        marginTop: { magnitude: 10, unit: 'PT' },
+        marginTop: { magnitude: 5, unit: 'PT' },
         marginBottom: { magnitude: 0, unit: 'PT' },
         marginLeft: { magnitude: 18, unit: 'PT' },
         marginRight: { magnitude: 10, unit: 'PT' },

@@ -3,7 +3,7 @@ import { getDocRoute, createDocRoute, updateDocRoute } from '../controllers/goog
 
 const router = Router();
 
-router.get('/docs/create', createDocRoute);
+router.post('/docs/create', createDocRoute);
 router.get('/docs/:documentId', getDocRoute);
 router.put('/docs/:documentId', updateDocRoute);
 

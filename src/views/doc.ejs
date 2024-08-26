@@ -7,13 +7,16 @@
     <link rel="stylesheet" href="/css/styles.css" />
   </head>
   <body>
-    <h1>Create a New Document</h1>
-    <h1>Welcome, <%= userInfo?.name %>!</h1>
-    <form action="/docs/create" method="POST">
-      <label for="doc-title">Document Title:</label>
-      <input type="text" id="doc-title" name="doc-title" required />
+    <%- include('navbar') %>
+    <div class="container">
+      <h1>Create a New Document</h1>
+      <form action="/api/v1/docs/create" method="POST">
+        <label for="title">Document Title:</label>
+        <input type="text" id="title" name="title" required />
 
-      <button type="submit">Create Document</button>
-    </form>
+        <button type="submit">Create Document</button>
+      </form>
+    </div>
+    <%- include('footer') %>
   </body>
 </html>

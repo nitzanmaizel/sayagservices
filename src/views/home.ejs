@@ -8,14 +8,15 @@
   </head>
   <body>
     <%- include('navbar') %>
-
-    <h2>Last 10 Documents</h2>
-    <ul>
-      <% recentDocs.forEach(doc => { %>
-      <li><%= doc.title %> - Created on <%= new Date(doc.created_at).toLocaleDateString() %></li>
-      <% }); %>
-    </ul>
-
+    <div class="container">
+      <div><a href="/doc">Create Doc</a></div>
+      <h2>Last 10 Documents</h2>
+      <ul>
+        <% recentDocs.forEach(doc => { %>
+        <li><%= doc.title %> - Created on <%= new Date(doc.created_at).toLocaleDateString() %></li>
+        <% }); %>
+      </ul>
+    </div>
     <%- include('footer') %>
   </body>
 </html>
