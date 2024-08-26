@@ -2,6 +2,7 @@ import { docs_v1 } from 'googleapis';
 import { DOC_STYLE_REQUESTS, INITIAL_TEXT } from '../constants/docStyleRequests';
 import { createHeader } from './googleDocsHeader';
 import { createFooter } from './googleDocsFooter';
+import { createTable } from './googleDocsTable';
 
 /**
  * Creates a new Google Doc with the specified title.
@@ -23,6 +24,7 @@ export async function createDoc(
 
       const docResponse = await docs.documents.get({ documentId });
       await createHeader(documentId, docs);
+      await createTable(documentId, docs);
       await createFooter(documentId, docs);
       return { docId: documentId, docData: docResponse.data };
     } else {
@@ -92,4 +94,64 @@ export async function updateDocById(
     console.error('Error updating document:', error);
     return { error };
   }
+}
+
+interface TextOptions {
+  fontSize: number;
+  bold: boolean;
+  borderTop?: docs_v1.Schema$ParagraphBorder; // Optional since it's conditionally used
+  indentFirstLine?: docs_v1.Schema$Dimension;
+  direction?: string;
+}
+
+/**
+ * Function to generate Google Docs API requests for inserting text and applying styles
+ * @param {string} segmentId - The segment ID for the text insertion
+ * @param {number} startIndex - The starting index for the text insertion
+ * @param {number} endIndex - The ending index for the text styling
+ * @param {string} text - The text to insert
+ * @param {TextOptions} textOptions - Options for styling the inserted text
+ * @returns {docs_v1.Schema$Request[]} - Array of requests to be sent to the Google Docs API
+ */
+export function getTextRequest(
+  segmentId: string,
+  startIndex: number,
+  endIndex: number,
+  text: string,
+  textOptions: TextOptions
+): docs_v1.Schema$Request[] {
+  const { fontSize, bold, borderTop, indentFirstLine, direction } = textOptions;
+
+  return [
+    {
+      insertText: {
+        location: { segmentId, index: startIndex },
+        text,
+      },
+    },
+    {
+      updateTextStyle: {
+        range: { segmentId, startIndex, endIndex },
+        textStyle: {
+          fontSize: { magnitude: fontSize, unit: 'PT' },
+          weightedFontFamily: { fontFamily: 'Arial' },
+          bold,
+        },
+        fields: 'fontSize,weightedFontFamily,bold',
+      },
+    },
+    {
+      updateParagraphStyle: {
+        range: { segmentId, startIndex, endIndex },
+        paragraphStyle: {
+          direction: direction || 'RIGHT_TO_LEFT',
+          indentFirstLine: indentFirstLine || { magnitude: 8, unit: 'PT' },
+          indentStart: { magnitude: 0, unit: 'PT' },
+          indentEnd: { magnitude: 0, unit: 'PT' },
+          borderTop: borderTop,
+        },
+        fields: 'direction,indentFirstLine,indentStart,indentEnd' + (borderTop ? ',borderTop' : ''),
+      },
+    },
+  ];
 }

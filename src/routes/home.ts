@@ -3,9 +3,7 @@ import { Router, Request, Response } from 'express';
 const router = Router();
 //
 
-router.get('/home', (req: Request, res: Response) => {
-  console.log(req.session);
-
+router.get('/home', (_req: Request, res: Response) => {
   res.send('Welcome to the Home Page!');
 });
 

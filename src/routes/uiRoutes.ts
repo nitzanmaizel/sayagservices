@@ -21,7 +21,6 @@ router.use(authRoute);
 
 // Create document page route
 router.get('/doc', (req: Request, res: Response) => {
-  console.log({ userInfo: req.session.userInfo });
   res.render('doc', { userInfo: req.session.userInfo });
 });
 
