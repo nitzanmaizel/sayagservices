@@ -16,19 +16,26 @@ document.addEventListener('DOMContentLoaded', () => {
   function addRow() {
     rowCount++;
     const newRow = document.createElement('div');
-    newRow.className = 'table-row';
+    newRow.className = 'table-rows-container';
     newRow.innerHTML = `
       <h3>שורה ${rowCount}</h3>
-      <label for="row${rowCount}cell1">מוצר:</label>
-      <input type="text" name="rows[${rowCount - 1}][0]" required />
-
-      <label for="row${rowCount}cell2">תיאור:</label>
-      <textarea rows="4" type="text" name="rows[${rowCount - 1}][1]" required></textarea>
-
-      <label for="row${rowCount}cell3">מחיר:</label>
-      <input type="text" name="rows[${rowCount - 1}][2]" required />
-
-      <button type="button" class="remove-row">למחוק שורה</button>
+      <div class="table-row" style="display: flex; justify-content: space-between">
+      <div>
+        <label for="row${rowCount}cell1">מוצר:</label>
+        <input type="text" name="rows[${rowCount - 1}][0]" required />
+      </div>
+      <div>
+        <label for="row${rowCount}cell2">תיאור:</label>
+        <textarea rows="4" type="text" name="rows[${rowCount - 1}][1]" required></textarea>
+      </div>
+      <div>
+        <label for="row${rowCount}cell3">מחיר:</label>
+        <input type="text" name="rows[${rowCount - 1}][2]" required />
+      </div>
+      <div style="display: flex; flex-direction: column; justify-content: space-evenly">
+        <button type="button" class="remove-row">למחוק שורה</button>
+        <button type="button" class="hide-row">להסתיר שורה</button>
+      </div>
     `;
     tableRowsContainer.appendChild(newRow);
 

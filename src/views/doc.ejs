@@ -14,24 +14,30 @@
         <label for="title">שם המסמך:</label>
         <input type="text" id="title" name="title" required />
 
-        <!-- Table Title -->
         <label for="tableTitle">לכבוד:</label>
         <input type="text" id="tableTitle" name="tableTitle" required />
 
-        <!-- Container for the dynamic rows -->
-        <div id="table-rows" style="display: flex">
-          <div class="table-row">
+        <div id="table-rows">
+          <div class="table-rows-container">
             <h3>שורה 1</h3>
-            <label for="row1cell1">מוצר:</label>
-            <input type="text" name="rows[0][0]" required />
-
-            <label for="row1cell2">תיאור:</label>
-            <textarea rows="4" type="text" name="rows[0][1]" required></textarea>
-
-            <label for="row1cell3">מחיר:</label>
-            <input type="text" name="rows[0][2]" required />
-
-            <button type="button" class="remove-row">מחיקת שורה</button>
+            <div class="table-row" style="display: flex; justify-content: space-between">
+              <div>
+                <label for="row1cell1">מוצר:</label>
+                <input type="text" name="rows[0][0]" required />
+              </div>
+              <div>
+                <label for="row1cell2">תיאור:</label>
+                <textarea rows="4" type="text" name="rows[0][1]" required></textarea>
+              </div>
+              <div>
+                <label for="row1cell3">מחיר:</label>
+                <input type="text" name="rows[0][2]" required />
+              </div>
+              <div style="display: flex; flex-direction: column; justify-content: space-evenly">
+                <button type="button" class="remove-row">מחיקת שורה</button>
+                <button type="button" class="hide-row">להסתיר שורה</button>
+              </div>
+            </div>
           </div>
         </div>
 

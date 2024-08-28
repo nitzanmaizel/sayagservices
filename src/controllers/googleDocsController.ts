@@ -1,4 +1,5 @@
-import { google } from 'googleapis';
+import { google, drive_v3 } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
 import { Request, Response, NextFunction } from 'express';
 import { createDoc, getDocById, updateDocById } from '../services/googleDocsService';
 import { oAuth2Client } from '../config/oauth2Client';
@@ -41,7 +42,16 @@ export async function createDocRoute(
       return next(result.error);
     }
 
-    res.status(201).json({ docId: result.docId, docData: result.docData });
+    // const response = {
+    //   docId: result.docId,
+    //   docData: result.docData,
+    // };
+
+    res
+      .status(201)
+      .send(
+        '<div>Document created successfully</div><div><a href="/">Go back to home page</a></div>'
+      );
   } catch (error) {
     next(error);
   }
@@ -64,7 +74,7 @@ export async function getDocRoute(
 
   const result = await getDocById(docs, documentId);
   if (result.error) {
-    return next(result.error); // Pass the error to the global error handler
+    return next(result.error);
   }
   return res.status(200).json({ docData: result.docData });
 }
@@ -92,3 +102,34 @@ export async function updateDocRoute(
     next(error);
   }
 }
+
+/**
+ * Fetches a specified number of recent documents from the user's Google Drive.
+ *
+ * @param {OAuth2Client} authClient - The authenticated OAuth2 client.
+ * @param {number} numDocs - The number of documents to retrieve.
+ * @returns {Promise<drive_v3.Schema$File[]>} - A promise that resolves to an array of documents.
+ * @throws {Error} - Throws an error if the request fails.
+ */
+export const getRecentDocs = async (
+  authClient: OAuth2Client,
+  numDocs: number = 12
+): Promise<drive_v3.Schema$File[]> => {
+  try {
+    const drive = google.drive({ version: 'v3', auth: authClient });
+
+    const response = await drive.files.list({
+      pageSize: numDocs,
+      fields: 'files(id, name, createdTime, thumbnailLink, webViewLink, mimeType)',
+      orderBy: 'createdTime desc',
+      q: "mimeType='application/vnd.google-apps.document'",
+    });
+
+    const files = response.data.files;
+
+    return files || [];
+  } catch (error) {
+    console.error('Error fetching recent documents:', error);
+    throw new Error('Failed to fetch recent documents.');
+  }
+};

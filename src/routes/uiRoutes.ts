@@ -1,15 +1,21 @@
 import express, { Request, Response } from 'express';
-import { authUrl } from '../config/oauth2Client';
+import { authUrl, oAuth2Client } from '../config/oauth2Client';
 import authRoute from '../middleware/authRoute';
+import { getRecentDocs } from '../controllers/googleDocsController';
 
 const router = express.Router();
 
 // Home page route
-router.get('/', (req: Request, res: Response) => {
-  const userInfo = req.session.userInfo;
-  // Replace with actual logic to get recent docs
-  const recentDocs = getRecentDocs();
-  res.render('home', { userInfo, recentDocs });
+router.get('/', async (req: Request, res: Response) => {
+  let userInfo;
+  let recentDocs = [] as any[];
+  if (req.session.tokens && req.session.userInfo) {
+    userInfo = req.session.userInfo;
+    oAuth2Client.setCredentials(req.session.tokens);
+    recentDocs = await getRecentDocs(oAuth2Client);
+  }
+
+  res.render('home', { userInfo, recentDocs, authUrl });
 });
 
 // Login page route
@@ -25,12 +31,3 @@ router.get('/doc', (req: Request, res: Response) => {
 });
 
 export default router;
-
-// Replace `getRecentDocs()` with actual logic or a service call to get recent documents
-function getRecentDocs() {
-  // This is just a placeholder. Replace it with your actual logic.
-  return [
-    { title: 'Document 1', created_at: new Date() },
-    { title: 'Document 2', created_at: new Date() },
-  ];
-}

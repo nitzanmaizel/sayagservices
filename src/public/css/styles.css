@@ -306,3 +306,41 @@ h1 {
 .text-center {
   text-align: center;
 }
+
+/* Home Page */
+.doc-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.doc-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+.doc-thumbnail {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.doc-details {
+  display: flex;
+  flex-direction: column;
+}
+.doc-name {
+  font-size: 1.2em;
+  margin: 0;
+}
+.doc-date {
+  color: #666;
+  font-size: 0.9em;
+  margin: 0;
+}
+.doc-link {
+  margin-top: 5px;
+  text-decoration: none;
+  color: #1a73e8;
+}
+.doc-link:hover {
+  text-decoration: underline;
+}

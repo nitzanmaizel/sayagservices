@@ -4,7 +4,7 @@ import session from 'express-session';
 import routes from './routes';
 import authRoutes from './routes/auth';
 import uiRoutes from './routes/uiRoutes';
-import { logger, cors, helmet } from './middleware';
+import { logger, cors, helmetMiddleware, csurf } from './middleware';
 import { errorHandler } from './middleware/errorHandler';
 import path from 'path';
 import process from 'process';
@@ -22,15 +22,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Apply middleware
 app.use(logger);
 app.use(cors);
-app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", 'data:', 'https://lh3.googleusercontent.com'],
-    },
-  })
-);
+app.use(csurf);
+app.use(helmetMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -47,6 +40,7 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
+      sameSite: 'strict',
     },
   })
 );
@@ -59,7 +53,7 @@ declare module 'express-session' {
       email?: string | null;
       name?: string | null;
       picture?: string | null;
-    };
+    } | null;
   }
 }
 

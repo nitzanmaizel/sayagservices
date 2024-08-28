@@ -8,14 +8,45 @@
   </head>
   <body>
     <%- include('navbar') %>
-    <div class="container">
-      <div><a href="/doc">Create Doc</a></div>
-      <h2>Last 10 Documents</h2>
-      <ul>
-        <% recentDocs.forEach(doc => { %>
-        <li><%= doc.title %> - Created on <%= new Date(doc.created_at).toLocaleDateString() %></li>
-        <% }); %>
-      </ul>
+    <div class="container text-center">
+      <div style="font-size: larger; margin: 20px 0"><a href="/doc">יצירת מסמך חדש</a></div>
+      <h2>מסמכים אחרונים</h2>
+      <div class="doc-container">
+        <% if (recentDocs.length > 0) { %> <% recentDocs.forEach(doc => { %>
+        <div class="doc-item">
+          <% if (doc.id) { %>
+          <img
+            src="<%= doc.thumbnailLink %>"
+            alt="<%= doc.name %> thumbnail"
+            class="doc-thumbnail"
+            style="opacity: 0; transition: opacity 0.5s ease-in-out"
+          />
+          <% } else { %>
+          <div
+            class="doc-thumbnail"
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              background-color: #f1f3f4;
+            "
+          >
+            <span>No Preview</span>
+          </div>
+          <% } %>
+          <div class="doc-details">
+            <p class="doc-name">
+              <a href="<%= doc.webViewLink %>" target="_blank" class="doc-link"><%= doc.name %></a>
+            </p>
+            <p class="doc-date">
+              נוצר בתאריך: <%= new Date(doc.createdTime).toLocaleDateString('he-IL') %>
+            </p>
+          </div>
+        </div>
+        <% }); %> <% } else { %>
+        <p>You have no recent documents.</p>
+        <% } %>
+      </div>
     </div>
     <%- include('footer') %>
   </body>
