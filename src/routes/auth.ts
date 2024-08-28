@@ -38,6 +38,15 @@ router.get('/oauth2callback', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * Handles user logout by revoking the OAuth2 token, clearing session data,
+ * and destroying the session. After logout, the user is redirected to the home page.
+ *
+ * @param {Request} req - The Express request object, containing the session data.
+ * @param {Response} res - The Express response object, used to redirect the user.
+ * @param {NextFunction} next - The next middleware function in the stack, used for error handling.
+ * @returns {Promise<void>} - A promise that resolves when the logout process is complete.
+ */
 router.get('/logout', (req: Request, res: Response, next: NextFunction) => {
   return logoutRoute(req, res, next);
 });
