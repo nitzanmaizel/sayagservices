@@ -27,17 +27,16 @@ const authRoute = async (req: Request, res: Response, next: NextFunction): Promi
 
       if (expiryDate && expiryDate <= now) {
         const refreshResponse = await oAuth2Client.refreshAccessToken();
-        req.session.tokens = refreshResponse.credentials; // Update session tokens with refreshed tokens
+        req.session.tokens = refreshResponse.credentials;
       }
 
-      // Fetch user info if it's not already in the session
       if (!req.session.userInfo) {
         const oauth2 = google.oauth2('v2');
         const userInfoResponse = await oauth2.userinfo.get({ auth: oAuth2Client });
         req.session.userInfo = userInfoResponse.data;
       }
 
-      next(); // Proceed to the next middleware or route handler
+      next();
     } catch (error) {
       console.error('Error setting OAuth2 client credentials or fetching user info:', error);
       res.status(500).send('Internal Server Error');

@@ -1,15 +1,13 @@
 import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
-import session from 'express-session';
 import routes from './routes';
 import authRoutes from './routes/auth';
 import uiRoutes from './routes/uiRoutes';
-import { logger, cors, helmetMiddleware, csurf } from './middleware';
+import { logger, cors, helmetMiddleware, csurf, sessionMiddleware } from './middleware';
 import { errorHandler } from './middleware/errorHandler';
 import path from 'path';
 import process from 'process';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,7 +20,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Apply middleware
 app.use(logger);
 app.use(cors);
-app.use(csurf);
+app.use('/api', csurf({ cookie: true }));
 app.use(helmetMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -32,18 +30,7 @@ if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
   throw new Error('SESSION_SECRET must be set in production');
 }
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'default-secret',
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-      sameSite: 'strict',
-    },
-  })
-);
+app.use(sessionMiddleware);
 
 declare module 'express-session' {
   interface SessionData {
