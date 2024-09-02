@@ -1,7 +1,9 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { oAuth2Client } from '../config/oauth2Client';
-import { logoutRoute } from '../middleware/authRoute';
+import { authUrl, oAuth2Client } from '../config/oauth2Client';
+import authRoute, { logoutRoute } from '../middleware/authRoute';
 import { google } from 'googleapis';
+
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 const router = express.Router();
 
@@ -29,12 +31,14 @@ router.get('/oauth2callback', async (req: Request, res: Response) => {
     if (userInfo) {
       const { id, email, name, picture } = userInfo;
       req.session.userInfo = { id, email, name, picture };
-    }
 
-    res.redirect('/');
+      res.redirect(FRONTEND_URL);
+    } else {
+      res.status(400).json({ message: 'User information not found' });
+    }
   } catch (error) {
     console.error('Error during OAuth2 callback:', error);
-    res.status(500).send('Authentication error');
+    res.status(500).json({ message: 'Authentication error' });
   }
 });
 
@@ -49,6 +53,32 @@ router.get('/oauth2callback', async (req: Request, res: Response) => {
  */
 router.get('/logout', (req: Request, res: Response, next: NextFunction) => {
   return logoutRoute(req, res, next);
+});
+
+/**
+ * Handles user logout by revoking the OAuth2 token, clearing session data,
+ * and destroying the session. After logout, the user is redirected to the home page.
+ *
+ * @param {Request} req - The Express request object, containing the session data.
+ * @param {Response} res - The Express response object, used to redirect the user.
+ * @param {NextFunction} next - The next middleware function in the stack, used for error handling.
+ * @returns {Promise<void>} - A promise that resolves when the logout process is complete.
+ */
+router.get('/login', (_req: Request, res: Response, _next: NextFunction) => {
+  res.status(200).json({ name: 'Nitzan', picture: '' });
+});
+
+router.get('/authUrl', (_req: Request, res: Response, _next: NextFunction) => {
+  res.status(200).json({ authUrl });
+});
+
+router.get('/user', authRoute, (req: Request, res: Response, _next: NextFunction) => {
+  if (req.session && req.session.userInfo) {
+    const { name, picture } = req.session.userInfo;
+    res.status(200).json({ name, picture });
+  } else {
+    res.status(400).send('User information not found');
+  }
 });
 
 export default router;

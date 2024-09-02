@@ -8,6 +8,7 @@
     "build": "tsc",
     "dev": "cross-env NODE_OPTIONS='--max-old-space-size=4096' ts-node-dev src/server.ts"
   },
+  "proxy": "http://localhost:5000",
   "keywords": [],
   "author": "",
   "license": "ISC",

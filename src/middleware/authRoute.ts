@@ -1,4 +1,3 @@
-// authRoute.ts
 import { Request, Response, NextFunction } from 'express';
 import { oAuth2Client } from '../config/oauth2Client';
 import rateLimit from 'express-rate-limit';
@@ -39,13 +38,13 @@ const authRoute = async (req: Request, res: Response, next: NextFunction): Promi
       next();
     } catch (error) {
       console.error('Error setting OAuth2 client credentials or fetching user info:', error);
-      res.status(500).send('Internal Server Error');
+      res.status(500).json({ message: 'Internal Server Error' });
     }
   } else {
     console.warn(
       `Unauthorized access attempt to ${req.originalUrl} from IP ${req.ip} using ${req.headers['user-agent']}`
     );
-    res.status(401).redirect('/login/');
+    res.status(401).json({ message: 'Unauthorized' });
   }
 };
 

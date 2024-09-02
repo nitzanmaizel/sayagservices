@@ -4,13 +4,13 @@ import express from 'express';
 import routes from './routes';
 import authRoutes from './routes/auth';
 import uiRoutes from './routes/uiRoutes';
-import { logger, cors, helmetMiddleware, csurf, sessionMiddleware } from './middleware';
+import { logger, cors, helmetMiddleware, sessionMiddleware, csurf } from './middleware';
 import { errorHandler } from './middleware/errorHandler';
 import path from 'path';
 import process from 'process';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // Set EJS as the view engine
 app.set('view engine', 'ejs');
