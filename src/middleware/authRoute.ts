@@ -79,7 +79,7 @@ export async function logoutRoute(req: Request, res: Response, next: NextFunctio
         return res.status(500).send('Failed to log out');
       }
 
-      return res.redirect('/');
+      return res.redirect('http://localhost:3000');
     });
   } catch (error) {
     next(error);

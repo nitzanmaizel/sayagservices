@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { authUrl, oAuth2Client } from '../config/oauth2Client';
-import authRoute, { logoutRoute } from '../middleware/authRoute';
+import authRoute from '../middleware/authRoute';
 import { google } from 'googleapis';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -51,8 +51,26 @@ router.get('/oauth2callback', async (req: Request, res: Response) => {
  * @param {NextFunction} next - The next middleware function in the stack, used for error handling.
  * @returns {Promise<void>} - A promise that resolves when the logout process is complete.
  */
-router.get('/logout', (req: Request, res: Response, next: NextFunction) => {
-  return logoutRoute(req, res, next);
+router.get('/logout', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (req.session.tokens) {
+      await oAuth2Client.revokeToken(req.session.tokens.access_token);
+    }
+
+    req.session.tokens = null;
+    req.session.userInfo = null;
+
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Failed to destroy session during logout:', err);
+        return res.status(500).send('Failed to log out');
+      }
+
+      return res.redirect('http://localhost:3000');
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
