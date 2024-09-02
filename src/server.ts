@@ -3,19 +3,12 @@ dotenv.config();
 import express from 'express';
 import routes from './routes';
 import authRoutes from './routes/auth';
-import uiRoutes from './routes/uiRoutes';
 import { logger, cors, helmetMiddleware, sessionMiddleware, csurf } from './middleware';
 import { errorHandler } from './middleware/errorHandler';
-import path from 'path';
 import process from 'process';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// Set EJS as the view engine
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Apply middleware
 app.use(logger);
@@ -51,7 +44,6 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/v1', routes);
 app.use('/auth', authRoutes);
-app.use('/', uiRoutes);
 
 // Global error handler
 app.use(errorHandler);
