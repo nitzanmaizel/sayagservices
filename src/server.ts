@@ -42,6 +42,10 @@ app.get('/health', (_req, res) => {
   res.status(200).send('OK');
 });
 
+app.get('/', (_req, res) => {
+  res.status(200).json({ message: 'Welcome to the Sayag Services API' });
+});
+
 app.use('/api/v1', routes);
 app.use('/auth', authRoutes);
 
