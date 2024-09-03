@@ -5,6 +5,10 @@ const CLIENT_ID = process.env.CLIENT_ID || '';
 const CLIENT_SECRET = process.env.CLIENT_SECRET || '';
 const REDIRECT_URI = process.env.REDIRECT_URI || '';
 
+console.log('CLIENT_ID:', CLIENT_ID);
+console.log('CLIENT_ID:', CLIENT_SECRET);
+console.log('CLIENT_ID:', REDIRECT_URI);
+
 if (!CLIENT_ID || !CLIENT_SECRET || !REDIRECT_URI) {
   throw new Error('Missing required environment variables for OAuth2 client');
 }
