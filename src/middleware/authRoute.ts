@@ -15,6 +15,8 @@ import { google } from 'googleapis';
  * @returns {Promise<void>} - A promise that resolves when the middleware completes.
  */
 const authRoute = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  console.log('Session tokens:', req.session.tokens);
+  console.log('Session userInfo:', req.session.userInfo);
   if (req.session && req.session.tokens) {
     try {
       // Set the credentials using the tokens stored in the session
