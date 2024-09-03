@@ -18,6 +18,10 @@ const SCOPES = [
   'https://www.googleapis.com/auth/userinfo.email',
 ];
 
-const authUrl = oAuth2Client.generateAuthUrl({ access_type: 'offline', scope: SCOPES });
+const authUrl = oAuth2Client.generateAuthUrl({
+  access_type: 'offline',
+  scope: SCOPES,
+  redirect_uri: REDIRECT_URI,
+});
 
 export { oAuth2Client, SCOPES, authUrl };
