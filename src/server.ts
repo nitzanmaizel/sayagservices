@@ -3,7 +3,7 @@ dotenv.config();
 import express from 'express';
 import routes from './routes';
 import authRoutes from './routes/auth';
-import { logger, cors, helmetMiddleware, sessionMiddleware } from './middleware';
+import { logger, cors, helmetMiddleware, sessionMiddleware, csurf } from './middleware';
 import { errorHandler } from './middleware/errorHandler';
 import process from 'process';
 
@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 5000;
 // Apply middleware
 app.use(logger);
 app.use(cors);
-// app.use('/api', csurf({ cookie: true }));
+app.use('/api', csurf({ cookie: true }));
 app.use(helmetMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

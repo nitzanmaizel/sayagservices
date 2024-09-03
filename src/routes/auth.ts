@@ -28,14 +28,11 @@ router.get('/oauth2callback', async (req: Request, res: Response) => {
 
     const userInfoResponse = await oauth2.userinfo.get({ auth: oAuth2Client });
     const userInfo = userInfoResponse.data;
-
-    console.log('User info:', userInfo);
-
     if (userInfo) {
       const { id, email, name, picture } = userInfo;
       req.session.userInfo = { id, email, name, picture };
 
-      res.redirect(FRONTEND_URL + '/about');
+      res.redirect(FRONTEND_URL);
     } else {
       res.status(400).json({ message: 'User information not found' });
     }
