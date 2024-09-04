@@ -19,7 +19,10 @@ export async function createDocRoute(
   next: NextFunction
 ): Promise<void> {
   try {
-    oAuth2Client.setCredentials(req.session.tokens);
+    if (!req.user || !req.user.accessToken) {
+      throw new Error('Access token not found');
+    }
+    oAuth2Client.setCredentials({ access_token: req.user.accessToken });
     const docs = google.docs({ version: 'v1', auth: oAuth2Client });
 
     const { title, tableTitle, rows } = req.body;
@@ -42,16 +45,12 @@ export async function createDocRoute(
       return next(result.error);
     }
 
-    // const response = {
-    //   docId: result.docId,
-    //   docData: result.docData,
-    // };
+    const response = {
+      docId: result.docId,
+      docData: result.docData,
+    };
 
-    res
-      .status(201)
-      .send(
-        '<div>Document created successfully</div><div><a href="/">Go back to home page</a></div>'
-      );
+    res.status(201).send(response);
   } catch (error) {
     next(error);
   }
@@ -69,6 +68,10 @@ export async function getDocRoute(
   res: Response,
   next: NextFunction
 ): Promise<Response | void> {
+  if (!req.user || !req.user.accessToken) {
+    throw new Error('Access token not found');
+  }
+  oAuth2Client.setCredentials({ access_token: req.user.accessToken });
   const docs = google.docs({ version: 'v1', auth: oAuth2Client });
   const { documentId } = req.params;
 

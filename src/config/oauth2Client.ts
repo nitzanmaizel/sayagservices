@@ -1,4 +1,3 @@
-import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 
 const CLIENT_ID = process.env.CLIENT_ID || '';
@@ -9,7 +8,7 @@ if (!CLIENT_ID || !CLIENT_SECRET || !REDIRECT_URI) {
   throw new Error('Missing required environment variables for OAuth2 client');
 }
 
-const oAuth2Client: OAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+const oAuth2Client: OAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
 const SCOPES = [
   'https://www.googleapis.com/auth/drive',
@@ -18,6 +17,4 @@ const SCOPES = [
   'https://www.googleapis.com/auth/userinfo.email',
 ];
 
-const authUrl = oAuth2Client.generateAuthUrl({ access_type: 'offline', scope: SCOPES });
-
-export { oAuth2Client, SCOPES, authUrl };
+export { oAuth2Client, SCOPES };
