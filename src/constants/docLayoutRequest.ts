@@ -20,12 +20,13 @@ interface TableCell {
   underline?: boolean;
 }
 
-interface TableRow {
+export interface TableRow {
   cells: TableCell[];
 }
 
 export interface TableData {
   title: string;
+  clientName: string;
   rows: TableRow[];
 }
 
@@ -116,3 +117,48 @@ export const FOOTER_TEXT_REQUESTS: docs_v1.Schema$Request[] = [
     },
   },
 ];
+
+export const tableDataDefault: TableData = {
+  title: 'הצעת מחיר',
+  clientName: 'מועדון האוהדים הפועל קטמון\n\n',
+  rows: [
+    {
+      cells: [
+        {
+          text: 'מכונת קרח תוצרת איטליה חברת aristarco',
+          bold: true,
+          underline: true,
+        },
+        {
+          text: 'דגם cp 40.15\nרוחב 50 ס"מ\nעומק 59 ס"מ\nגובה 69 ס"מ ללא רגליים\nפאזה 1\n40 קילו יצור ביממה\nתא אחסון 15 ק"ג\nכולל מרכך הובלה והרכבה',
+          bold: false,
+          underline: false,
+        },
+        {
+          text: '6700 ש"ח לא כולל מע"מ',
+          bold: false,
+          underline: false,
+        },
+      ],
+    },
+    {
+      cells: [
+        {
+          text: 'מכונת קרח תוצרת איטליה חברת aristarco',
+          bold: true,
+          underline: true,
+        },
+        {
+          text: 'דגם cp 50.25\nרוחב 50 ס"מ\nעומק 59 ס"מ\nגובה 80 ס"מ ללא רגליים\nפאזה 1\n50 קילו יצור ביממה\nתא אחסון 25 ק"ג\nכולל מרכך הובלה והרכבה',
+          bold: false,
+          underline: false,
+        },
+        {
+          text: '7800 ש"ח לא כולל מע"מ',
+          bold: false,
+          underline: false,
+        },
+      ],
+    },
+  ],
+};

@@ -30,7 +30,7 @@ export async function createTable(
     const tableTitleText = [
       { text: DATE_TITLE, fontSize: 11, bold: false, direction: 'LEFT_TO_RIGHT' },
       { text: pageTitle, fontSize: 11, bold: false },
-      { text: tableData.title, fontSize: 11, bold: false },
+      { text: tableData.clientName + '\n\n', fontSize: 11, bold: false },
     ];
 
     const createTableTitleText = tableTitleText.flatMap(({ text, fontSize, bold, direction }) => {
@@ -84,9 +84,7 @@ export async function createTable(
         const cellStartIndex = adjustedIndices[rowIndex * tableColumns + cellIndex];
         const textInsertRequest: docs_v1.Schema$Request = {
           insertText: {
-            location: {
-              index: cellStartIndex + 1,
-            },
+            location: { index: cellStartIndex + 1 },
             text: cell.text,
           },
         };
