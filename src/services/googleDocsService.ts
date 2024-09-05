@@ -15,11 +15,10 @@ import { DOC_STYLE_REQUESTS, INITIAL_TEXT } from '../constants/docStyleRequests'
 
 export async function createDoc(
   docs: docs_v1.Docs,
-  title: string,
   tableData: TableData
 ): Promise<{ docId?: string; docData?: docs_v1.Schema$Document; error?: any }> {
   try {
-    const createResponse = await docs.documents.create({ requestBody: { title } });
+    const createResponse = await docs.documents.create({ requestBody: { title: tableData.title } });
     const documentId = createResponse.data.documentId;
 
     if (!documentId) {

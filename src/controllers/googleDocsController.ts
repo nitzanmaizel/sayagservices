@@ -1,10 +1,7 @@
 import { google, drive_v3 } from 'googleapis';
-import { OAuth2Client } from 'google-auth-library';
 import { Request, Response, NextFunction } from 'express';
 import { createDoc, getDocById, updateDocById } from '../services/googleDocsService';
 import { oAuth2Client } from '../config/oauth2Client';
-import { TableData } from '../constants/docLayoutRequest';
-import { normalizeLineBreaks } from '../utils/docsUtils';
 
 /**
  * Controller to handle the creation of a Google Doc.
@@ -25,22 +22,9 @@ export async function createDocRoute(
     oAuth2Client.setCredentials({ access_token: req.user.accessToken });
     const docs = google.docs({ version: 'v1', auth: oAuth2Client });
 
-    const { title, tableTitle, rows } = req.body;
+    const tableData = req.body;
 
-    const tableData: TableData = {
-      title: tableTitle + '\n\n',
-      rows: rows.map((row: string[]) => {
-        return {
-          cells: [
-            { text: normalizeLineBreaks(row[0]), bold: true, underline: true },
-            { text: normalizeLineBreaks(row[1]), bold: false, underline: false },
-            { text: normalizeLineBreaks(row[2]), bold: false, underline: false },
-          ],
-        };
-      }),
-    };
-
-    const result = await createDoc(docs, title, tableData);
+    const result = await createDoc(docs, tableData);
     if (result.error) {
       return next(result.error);
     }
@@ -50,7 +34,7 @@ export async function createDocRoute(
       docData: result.docData,
     };
 
-    res.status(201).send(response);
+    res.status(201).json(response);
   } catch (error) {
     next(error);
   }
@@ -94,6 +78,10 @@ export async function updateDocRoute(
   res: Response,
   next: NextFunction
 ): Promise<void | Response> {
+  if (!req.user || !req.user.accessToken) {
+    throw new Error('Access token not found');
+  }
+  oAuth2Client.setCredentials({ access_token: req.user.accessToken });
   const docs = google.docs({ version: 'v1', auth: oAuth2Client });
   const { documentId } = req.params;
   const { requests } = req.body;
@@ -115,11 +103,17 @@ export async function updateDocRoute(
  * @throws {Error} - Throws an error if the request fails.
  */
 export const getRecentDocs = async (
-  authClient: OAuth2Client,
+  req: Request,
+  res: Response,
+  next: NextFunction,
   numDocs: number = 12
-): Promise<drive_v3.Schema$File[]> => {
+): Promise<void | drive_v3.Schema$File[]> => {
   try {
-    const drive = google.drive({ version: 'v3', auth: authClient });
+    if (!req.user || !req.user.accessToken) {
+      throw new Error('Access token not found');
+    }
+    oAuth2Client.setCredentials({ access_token: req.user.accessToken });
+    const drive = google.drive({ version: 'v3', auth: oAuth2Client });
 
     const response = await drive.files.list({
       pageSize: numDocs,
@@ -128,11 +122,10 @@ export const getRecentDocs = async (
       q: "mimeType='application/vnd.google-apps.document'",
     });
 
-    const files = response.data.files;
+    const docs = response.data.files || [];
 
-    return files || [];
+    res.status(200).json(docs);
   } catch (error) {
-    console.error('Error fetching recent documents:', error);
-    throw new Error('Failed to fetch recent documents.');
+    next(error);
   }
 };
