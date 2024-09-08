@@ -1,4 +1,4 @@
-import { google, drive_v3 } from 'googleapis';
+import { google } from 'googleapis';
 import { Request, Response, NextFunction } from 'express';
 import { createDoc, getDocById, updateDocById } from '../services/googleDocsService';
 import { oAuth2Client } from '../config/oauth2Client';
@@ -102,16 +102,26 @@ export async function updateDocRoute(
  * @returns {Promise<drive_v3.Schema$File[]>} - A promise that resolves to an array of documents.
  * @throws {Error} - Throws an error if the request fails.
  */
+
+/**
+ * Fetches a specified number of recent documents from the user's Google Drive.
+ * @param {Request} req - Express request object.
+ * @param {Response} res - Express response object.
+ * @param {NextFunction} next - Express next middleware function.
+ */
 export const getRecentDocs = async (
   req: Request,
   res: Response,
-  next: NextFunction,
-  numDocs: number = 12
-): Promise<void | drive_v3.Schema$File[]> => {
+  next: NextFunction
+): Promise<void> => {
+  const numDocs = parseInt(req.query.numDocs as string) || 12;
+
   try {
     if (!req.user || !req.user.accessToken) {
       throw new Error('Access token not found');
     }
+
+    // Set OAuth2 credentials
     oAuth2Client.setCredentials({ access_token: req.user.accessToken });
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
 
@@ -123,9 +133,48 @@ export const getRecentDocs = async (
     });
 
     const docs = response.data.files || [];
-
     res.status(200).json(docs);
   } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Controller to download a Google Doc as PDF.
+ * @param {Request} req - Express request object.
+ * @param {Response} res - Express response object.
+ * @param {NextFunction} next - Express next middleware function.
+ */
+export const downloadDocAsPDF = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const { documentId } = req.params;
+
+  try {
+    if (!req.user || !req.user.accessToken) {
+      throw new Error('Access token not found');
+    }
+
+    oAuth2Client.setCredentials({ access_token: req.user.accessToken });
+    const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+
+    const response = await drive.files.export(
+      {
+        fileId: documentId,
+        mimeType: 'application/pdf',
+      },
+      { responseType: 'stream' } // Stream the response
+    );
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${documentId}.pdf"`);
+
+    // Pipe the PDF stream to the client response
+    response.data.pipe(res);
+  } catch (error) {
+    console.error('Error downloading the document as PDF:', error);
     next(error);
   }
 };
