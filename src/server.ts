@@ -34,8 +34,8 @@ app.get('/health', (_req, res) => {
   res.status(200).json({ message: 'Server is healthy!' });
 });
 
-app.use('/api/v1', routes);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1', routes);
 
 // Global error handler
 app.use(errorHandler);
