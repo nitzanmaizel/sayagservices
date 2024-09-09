@@ -165,7 +165,7 @@ export const downloadDocAsPDF = async (
         fileId: documentId,
         mimeType: 'application/pdf',
       },
-      { responseType: 'stream' } // Stream the response
+      { responseType: 'stream' }
     );
 
     res.setHeader('Content-Type', 'application/pdf');
@@ -175,6 +175,71 @@ export const downloadDocAsPDF = async (
     response.data.pipe(res);
   } catch (error) {
     console.error('Error downloading the document as PDF:', error);
+    next(error);
+  }
+};
+
+/**
+ * Controller to search for Google Docs by name or creation time.
+ * Retrieves a list of Google Docs that match the specified search criteria,
+ * such as name, creation date range, or other filters.
+ * The search results are further refined on the server side for more accurate matching.
+ *
+ * @param {Request} req - The Express request object, containing search parameters:
+ *   - {string} [req.query.name] - The name or partial name of the document to search for.
+ *   - {string} [req.query.createdAfter] - The start date (inclusive) to filter documents created after.
+ *   - {string} [req.query.createdBefore] - The end date (inclusive) to filter documents created before.
+ *   - {string} [req.query.limit] - The maximum number of results to return (defaults to 10).
+ * @param {Response} res - The Express response object used to send back the search results.
+ * @param {NextFunction} next - The Express next middleware function to handle errors.
+ * @returns {Promise<void>} - A promise that resolves when the response is sent.
+ */
+
+export const searchDocs = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    if (!req.user || !req.user.accessToken) {
+      throw new Error('Access token not found');
+    }
+
+    oAuth2Client.setCredentials({ access_token: req.user.accessToken });
+    const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+
+    const name = typeof req.query.name === 'string' ? req.query.name.trim() : '';
+    const createdAfter = typeof req.query.createdAfter === 'string' ? req.query.createdAfter : '';
+    const createdBefore =
+      typeof req.query.createdBefore === 'string' ? req.query.createdBefore : '';
+    const limit = parseInt(req.query.limit as string) || 12;
+
+    let query = "mimeType='application/vnd.google-apps.document'";
+
+    if (name) query += ` and name contains '${name}'`;
+    if (createdAfter) query += ` and createdTime >= '${createdAfter}'`;
+    if (createdBefore) query += ` and createdTime <= '${createdBefore}'`;
+
+    const response = await drive.files.list({
+      q: query,
+      fields: 'files(id, name, createdTime, thumbnailLink, webViewLink, mimeType)',
+      orderBy: 'createdTime desc',
+      pageSize: limit,
+    });
+
+    let docs = response.data.files || [];
+
+    if (name) {
+      const nameRegex = new RegExp(name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i'); // Escape special characters
+      docs = docs.filter((doc) => {
+        const docName = doc.name?.trim();
+        return docName && nameRegex.test(docName);
+      });
+    }
+
+    res.status(200).json(docs);
+  } catch (error) {
+    console.error('Error searching for documents:', error);
     next(error);
   }
 };
