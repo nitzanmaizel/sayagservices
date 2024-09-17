@@ -244,3 +244,85 @@ export const searchDocs = async (
     next(error);
   }
 };
+
+/**
+ * Controller to delete a Google Doc by its ID.
+ * @param {Request} req - Express request object.
+ * @param {Response} res - Express response object.
+ * @param {NextFunction} next - Express next middleware function.
+ * @returns {Promise<void>} - A promise that resolves to void.
+ */
+export const deleteDocById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    if (!req.user || !req.user.accessToken) {
+      throw new Error('Access token not found');
+    }
+
+    oAuth2Client.setCredentials({ access_token: req.user.accessToken });
+    const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+    const { documentId } = req.params;
+
+    await drive.files.delete({ fileId: documentId });
+
+    res
+      .status(200)
+      .json({ message: `Document with ID ${documentId} has been deleted successfully.` });
+  } catch (error) {
+    console.error('Error deleting the document:', error);
+    next(error);
+  }
+};
+
+/**
+ * Controller to delete Google Docs by name.
+ * @param {Request} req - Express request object.
+ * @param {Response} res - Express response object.
+ * @param {NextFunction} next - Express next middleware function.
+ * @returns {Promise<void>} - A promise that resolves to void.
+ */
+export const deleteDocsByName = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> => {
+  try {
+    if (!req.user || !req.user.accessToken) {
+      throw new Error('Access token not found');
+    }
+
+    oAuth2Client.setCredentials({ access_token: req.user.accessToken });
+    const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+    const { name } = req.query;
+
+    if (!name || typeof name !== 'string') {
+      return res.status(400).json({ error: 'A valid name query parameter is required.' });
+    }
+
+    const response = await drive.files.list({
+      q: `mimeType='application/vnd.google-apps.document' and name contains '${name}'`,
+      fields: 'files(id, name)',
+    });
+
+    const docs = response.data.files || [];
+
+    if (docs.length === 0) {
+      return res
+        .status(404)
+        .json({ message: `No documents found with the name containing '${name}'` });
+    }
+
+    const deletePromises = docs.map((doc) => drive.files.delete({ fileId: doc.id! }));
+    await Promise.all(deletePromises);
+
+    res
+      .status(200)
+      .json({ message: `All documents with name containing '${name}' have been deleted.` });
+  } catch (error) {
+    console.error('Error deleting documents by name:', error);
+    next(error);
+  }
+};

@@ -28,6 +28,8 @@ export async function createHeader(documentId: string, docs: docs_v1.Docs): Prom
   const docResponse = await docs.documents.get({ documentId });
   const content = docResponse.data.headers?.[headerId]?.content;
 
+  console.log({ content });
+
   if (!content) {
     throw new Error('Content not found in document');
   }

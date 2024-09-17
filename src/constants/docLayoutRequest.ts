@@ -64,7 +64,7 @@ export const tableCellStyle: docs_v1.Schema$TableCellStyle = {
 
 // Image URL for the logo
 export const imageUrl =
-  'https://lh7-rt.googleusercontent.com/docsz/AD_4nXebORZIKvNMehl4ZphXdLTdl1dg6XpzuzyYSfgkb0U57nfZOh5upRwAq72D83fGC6j-F_0Llbqv_pLnHyvprbjklM6KeTKzpige2fkcu-A84b42ecmrVy9m-YRT7MM_qoMB1rzHd8JCQ8MDF4Ny258Gy_Mg?key=JcXWS5OTYPn8wwxsKjAV8w';
+  'https://raw.githubusercontent.com/nitzanmaizel/sayagservices-app/refs/heads/main/public/assets/logo.png';
 
 export const FOOTER_TEXT = `
 *תוקף ההצעה הינו ל30 יום.
