@@ -30,8 +30,8 @@ export async function createDocRoute(
     }
 
     const response = {
-      docId: result.docId,
-      docData: result.docData,
+      documentId: result.docId,
+      title: result.docData?.title,
     };
 
     res.status(201).json(response);
@@ -116,11 +116,10 @@ export const getRecentDocs = async (
 ): Promise<void> => {
   const numDocs = parseInt(req.query.numDocs as string) || 12;
 
+  if (!req.user || !req.user.accessToken) {
+    throw new Error('Access token not found');
+  }
   try {
-    if (!req.user || !req.user.accessToken) {
-      throw new Error('Access token not found');
-    }
-
     // Set OAuth2 credentials
     oAuth2Client.setCredentials({ access_token: req.user.accessToken });
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
@@ -131,6 +130,8 @@ export const getRecentDocs = async (
       orderBy: 'createdTime desc',
       q: "mimeType='application/vnd.google-apps.document'",
     });
+
+    console.log({ response });
 
     const docs = response.data.files || [];
     res.status(200).json(docs);
