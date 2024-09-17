@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 import routes from './routes';
-import authRoutes from './routes/auth';
 import { logger, cors, helmetMiddleware } from './middleware';
 import { errorHandler } from './middleware/errorHandler';
 import process from 'process';
@@ -34,7 +33,6 @@ app.get('/health', (_req, res) => {
   res.status(200).json({ message: 'Server is healthy!' });
 });
 
-app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1', routes);
 
 // Global error handler

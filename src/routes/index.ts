@@ -1,12 +1,11 @@
 import { Router } from 'express';
-import homeRoute from './home';
 import docsRoute from './docs';
-import authVerifyToken from '../middleware/authVerifyToken';
+import authRoute from './auth';
 
 const router = Router();
 
-router.use(authVerifyToken);
-router.use(homeRoute);
+router.use('/auth', authRoute);
+
 router.use(docsRoute);
 
 export default router;

@@ -63,7 +63,7 @@ export async function getDocRoute(
   if (result.error) {
     return next(result.error);
   }
-  return res.status(200).json({ docData: result.docData });
+  return res.status(200).json(result.docData);
 }
 
 /**
@@ -131,8 +131,6 @@ export const getRecentDocs = async (
       q: "mimeType='application/vnd.google-apps.document'",
     });
 
-    console.log({ response });
-
     const docs = response.data.files || [];
     res.status(200).json(docs);
   } catch (error) {
@@ -172,7 +170,6 @@ export const downloadDocAsPDF = async (
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${documentId}.pdf"`);
 
-    // Pipe the PDF stream to the client response
     response.data.pipe(res);
   } catch (error) {
     console.error('Error downloading the document as PDF:', error);
