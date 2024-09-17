@@ -1,9 +1,8 @@
 import cors, { CorsOptions } from 'cors';
-const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000';
 
 const corsOptions: CorsOptions = {
   optionsSuccessStatus: 200,
-  origin: CORS_ORIGIN,
+  origin: ['http://localhost:3000', 'https://sayagservices-app-c8e753671a56.herokuapp.com'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', 'credentials'],
   credentials: true,
