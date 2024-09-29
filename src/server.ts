@@ -5,6 +5,7 @@ import { OAuth2Client } from 'google-auth-library';
 import { logger, cors, helmetMiddleware } from './middleware';
 import { errorHandler } from './middleware/errorHandler';
 import routes from './routes';
+import { googleCallback } from './controllers/authControllers';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -31,6 +32,8 @@ declare module 'express' {
 app.get('/health', (_req, res) => {
   res.status(200).json({ message: 'Server is healthy!' });
 });
+
+app.get('/auth/oauth2callback', googleCallback);
 
 app.use('/api/v1', routes);
 
