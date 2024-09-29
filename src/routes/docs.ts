@@ -9,11 +9,11 @@ import {
   searchDocs,
   updateDocRoute,
 } from '../controllers/googleDocsController';
-import authVerifyToken from '../middleware/authVerifyToken';
+import { authenticateJWT, refreshTokenMiddleware } from '../middleware';
 
 const router = Router();
 
-router.use(authVerifyToken);
+router.use(authenticateJWT, refreshTokenMiddleware);
 router.post('/docs/create', createDocRoute);
 router.get('/docs/recent', getRecentDocs);
 router.get('/docs/search', searchDocs);
