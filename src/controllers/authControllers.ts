@@ -4,8 +4,10 @@ import jwt from 'jsonwebtoken';
 
 import { oAuth2Client, SCOPES } from '../config/oauth2Client';
 import { userTokens } from '../utils/userStore';
+import { UserInfoType } from '../types/UserType';
 
 const jwtSecret = process.env.JWT_SECRET as string;
+const frontendUrl = process.env.FRONTEND_URL as string;
 
 export const login = (_req: Request, res: Response) => {
   const authUrl = oAuth2Client.generateAuthUrl({
@@ -32,20 +34,34 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
     const oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2' });
     const userInfo = await oauth2.userinfo.get();
 
-    const userId = userInfo.data.id as string;
+    const { id: userId, email, name, picture } = userInfo.data as UserInfoType;
     userTokens[userId] = tokens;
 
-    const jwtPayload = {
-      userId,
-      email: userInfo.data.email,
-      name: userInfo.data.name,
-    };
+    const jwtPayload = { userId, email, name, picture };
 
     const jwtToken = jwt.sign(jwtPayload, jwtSecret, { expiresIn: '1h' });
 
-    res.redirect(`http://localhost:3000/home?token=${jwtToken}`);
+    res.redirect(`${frontendUrl}?token=${jwtToken}`);
   } catch (error) {
     console.error('Error exchanging code for token:', error);
     res.status(500).send('Authentication failed');
+  }
+};
+
+export const getProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = req.body.user;
+    let tokens = userTokens[user.userId];
+
+    if (!tokens) {
+      res.status(401).send('User not authenticated');
+      return;
+    }
+
+    const { name, email, picture } = user;
+    res.json({ name, email, picture });
+  } catch (error) {
+    console.error('Error fetching profile or files:', error);
+    res.status(500).send('Failed to fetch profile');
   }
 };

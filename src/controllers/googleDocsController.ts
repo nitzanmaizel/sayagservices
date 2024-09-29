@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
 import { Request, Response, NextFunction } from 'express';
-import { createDoc, getDocById, updateDocById } from '../services/googleDocsService';
+import { createDocServices, getDocById, updateDocById } from '../services/googleDocsService';
 import { oAuth2Client } from '../config/oauth2Client';
 
 /**
@@ -10,21 +10,11 @@ import { oAuth2Client } from '../config/oauth2Client';
  * @param {NextFunction} next - Express next middleware function.
  * @returns {Promise<void>} - A promise that resolves to void.
  */
-export async function createDocRoute(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function createDoc(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    if (!req.user || !req.user.accessToken) {
-      throw new Error('Access token not found');
-    }
-    oAuth2Client.setCredentials({ access_token: req.user.accessToken });
     const docs = google.docs({ version: 'v1', auth: oAuth2Client });
-
     const tableData = req.body;
-
-    const result = await createDoc(docs, tableData);
+    const result = await createDocServices(docs, tableData);
     if (result.error) {
       return next(result.error);
     }
@@ -52,10 +42,6 @@ export async function getDocRoute(
   res: Response,
   next: NextFunction
 ): Promise<Response | void> {
-  if (!req.user || !req.user.accessToken) {
-    throw new Error('Access token not found');
-  }
-  oAuth2Client.setCredentials({ access_token: req.user.accessToken });
   const docs = google.docs({ version: 'v1', auth: oAuth2Client });
   const { documentId } = req.params;
 
@@ -73,15 +59,11 @@ export async function getDocRoute(
  * @param {NextFunction} next - Express next middleware function.
  * @returns {Promise<void | Response>} - A promise that resolves to void or an Express response object.
  */
-export async function updateDocRoute(
+async function updateDoc(
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void | Response> {
-  if (!req.user || !req.user.accessToken) {
-    throw new Error('Access token not found');
-  }
-  oAuth2Client.setCredentials({ access_token: req.user.accessToken });
   const docs = google.docs({ version: 'v1', auth: oAuth2Client });
   const { documentId } = req.params;
   const { requests } = req.body;
@@ -109,19 +91,10 @@ export async function updateDocRoute(
  * @param {Response} res - Express response object.
  * @param {NextFunction} next - Express next middleware function.
  */
-export const getRecentDocs = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+const getRecentDocs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const numDocs = parseInt(req.query.numDocs as string) || 12;
 
-  if (!req.user || !req.user.accessToken) {
-    throw new Error('Access token not found');
-  }
   try {
-    // Set OAuth2 credentials
-    oAuth2Client.setCredentials({ access_token: req.user.accessToken });
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
 
     const response = await drive.files.list({
@@ -144,19 +117,10 @@ export const getRecentDocs = async (
  * @param {Response} res - Express response object.
  * @param {NextFunction} next - Express next middleware function.
  */
-export const downloadDocAsPDF = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+const downloadDocAsPDF = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { documentId } = req.params;
 
   try {
-    if (!req.user || !req.user.accessToken) {
-      throw new Error('Access token not found');
-    }
-
-    oAuth2Client.setCredentials({ access_token: req.user.accessToken });
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
 
     const response = await drive.files.export(
@@ -193,17 +157,8 @@ export const downloadDocAsPDF = async (
  * @returns {Promise<void>} - A promise that resolves when the response is sent.
  */
 
-export const searchDocs = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+const searchDocs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.user || !req.user.accessToken) {
-      throw new Error('Access token not found');
-    }
-
-    oAuth2Client.setCredentials({ access_token: req.user.accessToken });
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
 
     const name = typeof req.query.name === 'string' ? req.query.name.trim() : '';
@@ -249,17 +204,8 @@ export const searchDocs = async (
  * @param {NextFunction} next - Express next middleware function.
  * @returns {Promise<void>} - A promise that resolves to void.
  */
-export const deleteDocById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+const deleteDocById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.user || !req.user.accessToken) {
-      throw new Error('Access token not found');
-    }
-
-    oAuth2Client.setCredentials({ access_token: req.user.accessToken });
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
     const { documentId } = req.params;
 
@@ -281,17 +227,12 @@ export const deleteDocById = async (
  * @param {NextFunction} next - Express next middleware function.
  * @returns {Promise<void>} - A promise that resolves to void.
  */
-export const deleteDocsByName = async (
+const deleteDocsByName = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<Response | void> => {
   try {
-    if (!req.user || !req.user.accessToken) {
-      throw new Error('Access token not found');
-    }
-
-    oAuth2Client.setCredentials({ access_token: req.user.accessToken });
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
     const { name } = req.query;
 
@@ -323,3 +264,5 @@ export const deleteDocsByName = async (
     next(error);
   }
 };
+
+export { getRecentDocs, downloadDocAsPDF, deleteDocById, deleteDocsByName, searchDocs, updateDoc };

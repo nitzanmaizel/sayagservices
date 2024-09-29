@@ -27,12 +27,10 @@ export const refreshTokenMiddleware = async (
     oAuth2Client.setCredentials(tokens);
 
     if (isTokenExpiring(tokens)) {
-      console.log('Access token is expiring. Refreshing token...');
       const newTokensResponse = await oAuth2Client.refreshAccessToken();
       tokens = newTokensResponse.credentials;
       oAuth2Client.setCredentials(tokens);
       userTokens[user.userId] = tokens;
-      console.log('Token refreshed successfully.');
     }
 
     next();
