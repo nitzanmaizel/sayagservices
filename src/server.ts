@@ -1,15 +1,14 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
-import routes from './routes';
+import { OAuth2Client } from 'google-auth-library';
 import { logger, cors, helmetMiddleware } from './middleware';
 import { errorHandler } from './middleware/errorHandler';
-import process from 'process';
+import routes from './routes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Apply middleware
 app.use(logger);
 app.use(cors);
 app.use(helmetMiddleware);
@@ -25,20 +24,18 @@ declare module 'express' {
       picture: string | null;
       accessToken?: string;
     } | null;
+    oauth2Client?: OAuth2Client;
   }
 }
 
-// Add a simple health check endpoint
 app.get('/health', (_req, res) => {
   res.status(200).json({ message: 'Server is healthy!' });
 });
 
 app.use('/api/v1', routes);
 
-// Global error handler
 app.use(errorHandler);
 
-// Graceful shutdown
 const server = app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

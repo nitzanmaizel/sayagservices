@@ -13,7 +13,7 @@ import { DOC_STYLE_REQUESTS, INITIAL_TEXT } from '../constants/docStyleRequests'
  *          - A promise that resolves to an object containing either the document ID and data, or an error.
  */
 
-export async function createDoc(
+export async function createDocServices(
   docs: docs_v1.Docs,
   tableData: TableData
 ): Promise<{ docId?: string; docData?: docs_v1.Schema$Document; error?: any }> {
