@@ -1,8 +1,7 @@
-// src/middleware/refreshToken.ts
 import { Request, Response, NextFunction } from 'express';
-import { userTokens } from '../utils/userStore';
 import { Credentials } from 'google-auth-library';
 import { oAuth2Client } from '../config/oauth2Client';
+import { userTokens } from '../utils/userStore';
 
 function isTokenExpiring(tokens: Credentials): boolean {
   const expiryDate = tokens.expiry_date;
