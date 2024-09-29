@@ -11,3 +11,7 @@ export function getCurrentFormattedDate() {
   const formattedDate = `${day}/${month}/${year}`;
   return formattedDate;
 }
+
+export function isValidDate(dateString: string): boolean {
+  return !isNaN(Date.parse(dateString));
+}

@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
-import routes from './routes';
+import { OAuth2Client } from 'google-auth-library';
 import { logger, cors, helmetMiddleware } from './middleware';
 import { errorHandler } from './middleware/errorHandler';
-import process from 'process';
+import routes from './routes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,6 +24,7 @@ declare module 'express' {
       picture: string | null;
       accessToken?: string;
     } | null;
+    oauth2Client?: OAuth2Client;
   }
 }
 

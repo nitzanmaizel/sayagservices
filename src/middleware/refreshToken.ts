@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Credentials } from 'google-auth-library';
-import { oAuth2Client } from '../config/oauth2Client';
+import { Credentials, OAuth2Client } from 'google-auth-library';
 import { userTokens } from '../utils/userStore';
 
 function isTokenExpiring(tokens: Credentials): boolean {
@@ -24,14 +23,18 @@ export const refreshTokenMiddleware = async (
       return;
     }
 
-    oAuth2Client.setCredentials(tokens);
+    const oauth2Client = new OAuth2Client(process.env.CLIENT_ID, process.env.CLIENT_SECRET);
+
+    oauth2Client.setCredentials(tokens);
 
     if (isTokenExpiring(tokens)) {
-      const newTokensResponse = await oAuth2Client.refreshAccessToken();
+      const newTokensResponse = await oauth2Client.refreshAccessToken();
       tokens = newTokensResponse.credentials;
-      oAuth2Client.setCredentials(tokens);
+      oauth2Client.setCredentials(tokens);
       userTokens[user.userId] = tokens;
     }
+
+    req.oauth2Client = oauth2Client;
 
     next();
   } catch (error) {

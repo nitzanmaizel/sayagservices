@@ -1,7 +1,6 @@
 import { google } from 'googleapis';
 import { Request, Response, NextFunction } from 'express';
 import { createDocServices, getDocById, updateDocById } from '../services/googleDocsService';
-import { oAuth2Client } from '../config/oauth2Client';
 
 /**
  * Controller to handle the creation of a Google Doc.
@@ -12,7 +11,7 @@ import { oAuth2Client } from '../config/oauth2Client';
  */
 export async function createDoc(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const docs = google.docs({ version: 'v1', auth: oAuth2Client });
+    const docs = google.docs({ version: 'v1', auth: req.oauth2Client });
     const tableData = req.body;
     const result = await createDocServices(docs, tableData);
     if (result.error) {
@@ -42,7 +41,7 @@ export async function getDocRoute(
   res: Response,
   next: NextFunction
 ): Promise<Response | void> {
-  const docs = google.docs({ version: 'v1', auth: oAuth2Client });
+  const docs = google.docs({ version: 'v1', auth: req.oauth2Client });
   const { documentId } = req.params;
 
   const result = await getDocById(docs, documentId);
@@ -64,7 +63,7 @@ async function updateDoc(
   res: Response,
   next: NextFunction
 ): Promise<void | Response> {
-  const docs = google.docs({ version: 'v1', auth: oAuth2Client });
+  const docs = google.docs({ version: 'v1', auth: req.oauth2Client });
   const { documentId } = req.params;
   const { requests } = req.body;
 
@@ -95,7 +94,7 @@ const getRecentDocs = async (req: Request, res: Response, next: NextFunction): P
   const numDocs = parseInt(req.query.numDocs as string) || 12;
 
   try {
-    const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+    const drive = google.drive({ version: 'v3', auth: req.oauth2Client });
 
     const response = await drive.files.list({
       pageSize: numDocs,
@@ -121,7 +120,7 @@ const downloadDocAsPDF = async (req: Request, res: Response, next: NextFunction)
   const { documentId } = req.params;
 
   try {
-    const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+    const drive = google.drive({ version: 'v3', auth: req.oauth2Client });
 
     const response = await drive.files.export(
       {
@@ -159,7 +158,7 @@ const downloadDocAsPDF = async (req: Request, res: Response, next: NextFunction)
 
 const searchDocs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+    const drive = google.drive({ version: 'v3', auth: req.oauth2Client });
 
     const name = typeof req.query.name === 'string' ? req.query.name.trim() : '';
     const createdAfter = typeof req.query.createdAfter === 'string' ? req.query.createdAfter : '';
@@ -206,7 +205,7 @@ const searchDocs = async (req: Request, res: Response, next: NextFunction): Prom
  */
 const deleteDocById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+    const drive = google.drive({ version: 'v3', auth: req.oauth2Client });
     const { documentId } = req.params;
 
     await drive.files.delete({ fileId: documentId });
@@ -233,7 +232,7 @@ const deleteDocsByName = async (
   next: NextFunction
 ): Promise<Response | void> => {
   try {
-    const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+    const drive = google.drive({ version: 'v3', auth: req.oauth2Client });
     const { name } = req.query;
 
     if (!name || typeof name !== 'string') {
