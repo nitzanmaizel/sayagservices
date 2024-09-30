@@ -18,7 +18,7 @@ router.post('/docs/create', createDoc);
 router.get('/docs/recent', getRecentDocs);
 router.get('/docs/search', searchDocs);
 router.get('/docs/:documentId', getDocRoute);
-router.get('/docs/:documentId/download', downloadDocAsPDF);
+router.get('/docs/download/:documentId', downloadDocAsPDF);
 router.put('/docs/:documentId', updateDoc);
 router.delete('/docs/:documentId', deleteDocById);
 router.delete('/docs', deleteDocsByName);
