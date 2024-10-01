@@ -1,7 +1,7 @@
 import { docs_v1 } from 'googleapis';
 import { createHeader } from './googleDocsHeader';
-import { createFooter } from './googleDocsFooter';
-import { createTable } from './googleDocsTable';
+// import { createFooter } from './googleDocsFooter';
+// import { createTable } from './googleDocsTable';
 import { TableData, TextOptions } from '../constants/docLayoutRequest';
 import { DOC_STYLE_REQUESTS, INITIAL_TEXT } from '../constants/docStyleRequests';
 
@@ -29,8 +29,8 @@ export async function createDocServices(
 
     const docResponse = await docs.documents.get({ documentId });
     await createHeader(documentId, docs);
-    await createTable(documentId, docs, tableData);
-    await createFooter(documentId, docs);
+    // await createTable(documentId, docs, tableData);
+    // await createFooter(documentId, docs);
     return { docId: documentId, docData: docResponse.data };
   } catch (error) {
     return { error };
