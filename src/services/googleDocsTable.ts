@@ -30,7 +30,7 @@ export async function createTable(
     const tableTitleText = [
       { text: DATE_TITLE, fontSize: 11, bold: false, direction: 'LEFT_TO_RIGHT' },
       { text: pageTitle, fontSize: 11, bold: false },
-      { text: tableData.clientName + '\n\n', fontSize: 11, bold: false },
+      { text: tableData.clientName + '\n', fontSize: 11, bold: false },
     ];
 
     const createTableTitleText = tableTitleText.flatMap(({ text, fontSize, bold, direction }) => {
