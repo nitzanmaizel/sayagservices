@@ -128,12 +128,7 @@ export async function createTable(
       });
     });
 
-    await docs.documents.batchUpdate({
-      documentId: documentId,
-      requestBody: {
-        requests: requests,
-      },
-    });
+    await updateDocById(docs, documentId, requests);
   } catch (error) {
     console.error('Error creating table:', (error as Error).message);
   }
