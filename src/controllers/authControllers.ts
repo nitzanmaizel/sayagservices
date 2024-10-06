@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { oAuth2Client, SCOPES } from '../config/oauth2Client';
 import { userTokens } from '../utils/userStore';
 import { UserInfoType } from '../types/UserType';
+import { getAdminUserByEmailService } from '../services/adminUsersServices';
 
 const jwtSecret = process.env.JWT_SECRET as string;
 const frontendUrl = process.env.FRONTEND_URL as string;
@@ -36,6 +37,13 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 
     const { id: userId, email, name, picture } = userInfo.data as UserInfoType;
     userTokens[userId] = tokens;
+
+    const userFromDb = await getAdminUserByEmailService(email);
+
+    if (!userFromDb || !userFromDb.isAdmin) {
+      res.redirect(`${frontendUrl}/admin/unauthorized`);
+      return;
+    }
 
     const jwtPayload = { userId, email, name, picture };
 

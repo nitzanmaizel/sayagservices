@@ -1,6 +1,11 @@
-// src/controllers/productsController.ts
 import { Request, Response } from 'express';
-import Product, { IProduct } from '../models/productModal';
+import {
+  createProductService,
+  getAllProductsService,
+  getProductByIdService,
+  updateProductService,
+  deleteProductService,
+} from '../services/productServices';
 
 /**
  * Controller to create a new Product.
@@ -12,33 +17,38 @@ import Product, { IProduct } from '../models/productModal';
  */
 export const createProduct = async (req: Request, res: Response): Promise<void> => {
   try {
-    const newProduct: IProduct = new Product(req.body);
-    const savedProduct = await newProduct.save();
-    res.status(201).json(savedProduct);
+    const productData = req.body;
+    const newProduct = await createProductService(productData);
+    res.status(201).json(newProduct);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
 };
 
 /**
- * Controller to retrieve all Products.
+ * Controller to retrieve all Products with pagination and sorting.
  * @async
  * @function getAllProducts
  * @param {Request} req - Express Request object.
  * @param {Response} res - Express Response object to send back the list of products.
  * @returns {Promise<void>} - Sends an array of products as JSON or an error message.
  */
-export const getAllProducts = async (_req: Request, res: Response): Promise<void> => {
+export const getAllProducts = async (req: Request, res: Response): Promise<void> => {
   try {
-    const products: IProduct[] = await Product.find();
-    res.json(products);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const sortBy = (req.query.sortBy as string) || 'createdAt';
+    const order = (req.query.order as string) || 'asc';
+
+    const result = await getAllProductsService(page, limit, sortBy, order);
+    res.json(result);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 };
 
 /**
- * Controller to retrieve a single Product by its ID.
+ * Controller to retrieve a single Product by ID.
  * @async
  * @function getProductById
  * @param {Request} req - Express Request object containing the product's ID in params.
@@ -47,7 +57,8 @@ export const getAllProducts = async (_req: Request, res: Response): Promise<void
  */
 export const getProductById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const product = await Product.findById(req.params.id);
+    const productId = req.params.id;
+    const product = await getProductByIdService(productId);
     if (!product) {
       res.status(404).json({ error: 'Product not found' });
       return;
@@ -59,7 +70,7 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
 };
 
 /**
- * Controller to update an existing Product by its ID.
+ * Controller to update an existing Product by ID.
  * @async
  * @function updateProduct
  * @param {Request} req - Express Request object containing the product's ID and updated data.
@@ -68,10 +79,9 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
  */
 export const updateProduct = async (req: Request, res: Response): Promise<void> => {
   try {
-    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const productId = req.params.id;
+    const updateData = req.body;
+    const updatedProduct = await updateProductService(productId, updateData);
     if (!updatedProduct) {
       res.status(404).json({ error: 'Product not found' });
       return;
@@ -83,7 +93,7 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
 };
 
 /**
- * Controller to delete a Product by its ID.
+ * Controller to delete a Product by ID.
  * @async
  * @function deleteProduct
  * @param {Request} req - Express Request object containing the product's ID.
@@ -92,7 +102,8 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
  */
 export const deleteProduct = async (req: Request, res: Response): Promise<void> => {
   try {
-    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+    const productId = req.params.id;
+    const deletedProduct = await deleteProductService(productId);
     if (!deletedProduct) {
       res.status(404).json({ error: 'Product not found' });
       return;
