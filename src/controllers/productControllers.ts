@@ -6,6 +6,8 @@ import {
   updateProductService,
   deleteProductService,
 } from '../services/productServices';
+import { ProductType } from '../types/ProductType';
+import { uploadToCloudinary } from '../config/cloudinary';
 
 /**
  * Controller to create a new Product.
@@ -17,7 +19,26 @@ import {
  */
 export const createProduct = async (req: Request, res: Response): Promise<void> => {
   try {
-    const productData = req.body;
+    const { name, description, price } = req.body;
+
+    if (!name || !description || !price) {
+      res.status(400).json({ error: 'Name, description, and price are required' });
+      return;
+    }
+
+    const productData: ProductType = { name, description, price };
+
+    if (req.file) {
+      try {
+        const imageUrl = await uploadToCloudinary(req.file, 'products');
+        productData.imageUrl = imageUrl;
+      } catch (uploadError: any) {
+        console.error('Cloudinary Upload Error:', uploadError);
+        res.status(500).json({ error: 'Image upload failed' });
+        return;
+      }
+    }
+
     const newProduct = await createProductService(productData);
     res.status(201).json(newProduct);
   } catch (err: any) {
@@ -81,6 +102,18 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
   try {
     const productId = req.params.id;
     const updateData = req.body;
+
+    if (req.file) {
+      try {
+        const imageUrl = await uploadToCloudinary(req.file, 'products');
+        updateData.imageUrl = imageUrl;
+      } catch (uploadError: any) {
+        console.error('Cloudinary Upload Error:', uploadError);
+        res.status(500).json({ error: 'Image upload failed' });
+        return;
+      }
+    }
+
     const updatedProduct = await updateProductService(productId, updateData);
     if (!updatedProduct) {
       res.status(404).json({ error: 'Product not found' });

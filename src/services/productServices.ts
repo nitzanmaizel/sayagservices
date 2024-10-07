@@ -1,4 +1,4 @@
-import Product, { IProduct } from '../models/productModal';
+import Product, { IProduct } from '../models/ProductModal';
 
 /**
  * Creates a new Product.
@@ -32,12 +32,7 @@ export const getAllProductsService = async (
 
   const total = await Product.countDocuments();
 
-  return {
-    total,
-    page,
-    limit,
-    data: products,
-  };
+  return { total, page, limit, data: products };
 };
 
 /**
