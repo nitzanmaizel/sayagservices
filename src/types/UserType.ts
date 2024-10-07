@@ -3,4 +3,5 @@ export interface UserInfoType {
   email: string;
   name: string;
   picture: string;
+  isAdmin?: boolean;
 }

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { google } from 'googleapis';
 import jwt from 'jsonwebtoken';
 
+import { getAdminUserByEmailService } from '../services/adminUsersServices';
 import { oAuth2Client, SCOPES } from '../config/oauth2Client';
 import { userTokens } from '../utils/userStore';
 import { UserInfoType } from '../types/UserType';
@@ -37,7 +38,14 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
     const { id: userId, email, name, picture } = userInfo.data as UserInfoType;
     userTokens[userId] = tokens;
 
-    const jwtPayload = { userId, email, name, picture };
+    const adminUser = await getAdminUserByEmailService(email);
+
+    if (!adminUser || !adminUser.isAdmin) {
+      res.redirect(`${frontendUrl}/admin/unauthorized`);
+      return;
+    }
+
+    const jwtPayload = { userId, email, name, picture, isAdmin: true };
 
     const jwtToken = jwt.sign(jwtPayload, jwtSecret, { expiresIn: '1h' });
 
@@ -58,8 +66,8 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    const { name, email, picture } = user;
-    res.json({ name, email, picture });
+    const { name, email, picture, isAdmin } = user;
+    res.json({ name, email, picture, isAdmin });
   } catch (error) {
     console.error('Error fetching profile or files:', error);
     res.status(500).send('Failed to fetch profile');
