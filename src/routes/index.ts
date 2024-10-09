@@ -8,10 +8,10 @@ import { authenticateJWT, refreshTokenMiddleware } from '../middleware';
 const router = Router();
 
 router.use('/auth', authRoute);
+router.use('/products', productRoute);
 
 router.use(authenticateJWT, refreshTokenMiddleware);
 router.use('/docs', docsRoute);
-router.use('/products', productRoute);
 router.use('/user', userRoute);
 
 export default router;
