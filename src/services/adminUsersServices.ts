@@ -35,20 +35,14 @@ export const getAllAdminUsersService = async (
   limit: number = 10,
   sortBy: string = 'createdAt',
   order: string = 'asc'
-): Promise<{ total: number; page: number; limit: number; data: IAdminUser[] }> => {
+): Promise<{ total: number; page: number; limit: number; users: IAdminUser[] }> => {
   const adminUsers = await AdminUser.find()
     .sort({ [sortBy]: order === 'asc' ? 1 : -1 })
     .limit(limit)
     .skip((page - 1) * limit);
 
   const total = await AdminUser.countDocuments();
-
-  return {
-    total,
-    page,
-    limit,
-    data: adminUsers,
-  };
+  return { total, page, limit, users: adminUsers };
 };
 
 /**

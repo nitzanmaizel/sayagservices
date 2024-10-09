@@ -24,7 +24,7 @@ export const getAllProductsService = async (
   limit: number = 10,
   sortBy: string = 'createdAt',
   order: string = 'asc'
-): Promise<{ total: number; page: number; limit: number; data: IProduct[] }> => {
+): Promise<{ total: number; page: number; limit: number; products: IProduct[] }> => {
   const products = await Product.find()
     .sort({ [sortBy]: order === 'asc' ? 1 : -1 })
     .limit(limit)
@@ -32,7 +32,7 @@ export const getAllProductsService = async (
 
   const total = await Product.countDocuments();
 
-  return { total, page, limit, data: products };
+  return { total, page, limit, products };
 };
 
 /**
