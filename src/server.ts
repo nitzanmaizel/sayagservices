@@ -3,8 +3,8 @@ dotenv.config();
 import express from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import routes from './routes';
-import { connectDB, disconnectDB } from './config/MongoDb';
 import { logger, cors, helmetMiddleware, errorHandler } from './middleware';
+import { connectDB, disconnectDB } from './config/MongoDB';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
