@@ -7,6 +7,7 @@ import {
   deleteAdminUserService,
   getAdminUserByEmailService,
 } from '../services/adminUsersServices';
+import { IAdminUser } from '../models/UserModal';
 
 /**
  * Controller to create a new Admin User.
@@ -18,8 +19,8 @@ import {
  */
 export const createAdminUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const adminUserData = req.body;
-    const newAdminUser = await createAdminUserService(adminUserData);
+    const { newUser } = req.body as { newUser: Partial<IAdminUser> };
+    const newAdminUser = await createAdminUserService(newUser);
     res.status(201).json(newAdminUser);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
@@ -81,8 +82,8 @@ export const getAdminUserById = async (req: Request, res: Response): Promise<voi
 export const updateAdminUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const adminUserId = req.params.id;
-    const updateData = req.body;
-    const updatedAdminUser = await updateAdminUserService(adminUserId, updateData);
+    const { updatedUser } = req.body;
+    const updatedAdminUser = await updateAdminUserService(adminUserId, updatedUser);
     if (!updatedAdminUser) {
       res.status(404).json({ error: 'Admin User not found' });
       return;
