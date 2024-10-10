@@ -1,5 +1,3 @@
-// src/services/adminUsersService.ts
-
 import AdminUser, { IAdminUser } from '../models/UserModal';
 
 /**
@@ -35,20 +33,14 @@ export const getAllAdminUsersService = async (
   limit: number = 10,
   sortBy: string = 'createdAt',
   order: string = 'asc'
-): Promise<{ total: number; page: number; limit: number; data: IAdminUser[] }> => {
+): Promise<{ total: number; page: number; limit: number; users: IAdminUser[] }> => {
   const adminUsers = await AdminUser.find()
     .sort({ [sortBy]: order === 'asc' ? 1 : -1 })
     .limit(limit)
     .skip((page - 1) * limit);
 
   const total = await AdminUser.countDocuments();
-
-  return {
-    total,
-    page,
-    limit,
-    data: adminUsers,
-  };
+  return { total, page, limit, users: adminUsers };
 };
 
 /**
@@ -72,6 +64,8 @@ export const updateAdminUserService = async (
   updateData: Partial<IAdminUser>
 ): Promise<IAdminUser | null> => {
   const { email } = updateData;
+
+  console.log({ email });
 
   if (email) {
     const existingUser = await AdminUser.findOne({ email, _id: { $ne: id } });
