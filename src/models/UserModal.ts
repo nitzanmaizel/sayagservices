@@ -16,7 +16,7 @@ const adminUserSchema = new Schema<IAdminUser>(
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     isAdmin: { type: Boolean, default: false },
-    googleId: { type: String, required: true, unique: true },
+    googleId: { type: String, unique: true },
     accessToken: { type: String },
     refreshToken: { type: String },
     tokenExpiryDate: { type: Date },
