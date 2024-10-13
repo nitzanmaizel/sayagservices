@@ -1,44 +1,35 @@
 import { Request, Response, NextFunction } from 'express';
-import { Credentials, OAuth2Client } from 'google-auth-library';
-import { userTokens } from '../utils/userStore';
+import AdminUser from '../models/UserModal';
+import { refreshAccessToken } from '../services/authServices';
 
-function isTokenExpiring(tokens: Credentials): boolean {
-  const expiryDate = tokens.expiry_date;
-  const now = Date.now();
-  return expiryDate ? expiryDate - now <= 60 * 1000 : false;
-}
+export const refreshTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
 
-export const refreshTokenMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+  const userId = req.user.userId;
+
   try {
-    const user = req.body.user;
+    const adminUser = await AdminUser.findById(userId);
 
-    let tokens = userTokens[user.userId];
-
-    if (!tokens) {
-      res.status(401).send('User not authenticated');
+    if (!adminUser) {
+      res.status(404).json({ error: 'User not found' });
       return;
     }
 
-    const oauth2Client = new OAuth2Client(process.env.CLIENT_ID, process.env.CLIENT_SECRET);
+    const tokenExpiryDate = adminUser.tokenExpiryDate;
+    const accessToken = adminUser.accessToken;
 
-    oauth2Client.setCredentials(tokens);
-
-    if (isTokenExpiring(tokens)) {
-      const newTokensResponse = await oauth2Client.refreshAccessToken();
-      tokens = newTokensResponse.credentials;
-      oauth2Client.setCredentials(tokens);
-      userTokens[user.userId] = tokens;
+    if (!accessToken || !tokenExpiryDate || tokenExpiryDate <= new Date()) {
+      await refreshAccessToken(userId);
     }
 
-    req.oauth2Client = oauth2Client;
+    req.accessToken = adminUser.accessToken;
 
     next();
   } catch (error) {
-    console.error('Error refreshing access token:', error);
-    res.status(500).send('Failed to refresh access token');
+    console.error('Error in ensureValidAccessToken middleware:', error);
+    res.status(401).json({ error: 'Unauthorized' });
   }
 };

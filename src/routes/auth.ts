@@ -1,6 +1,7 @@
 import express from 'express';
 import { getProfile, googleCallback, login } from '../controllers/authControllers';
-import { authenticateJWT, refreshTokenMiddleware } from '../middleware';
+import { authenticateJWT } from '../middleware';
+import { refreshTokenMiddleware } from '../middleware/refreshToken';
 
 const router = express.Router();
 
