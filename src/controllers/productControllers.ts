@@ -100,7 +100,7 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
  */
 export const updateProduct = async (req: Request, res: Response): Promise<void> => {
   try {
-    const productId = req.params.id;
+    const productId = req.params.productId;
     const updateData = req.body;
 
     if (req.file) {
