@@ -62,7 +62,7 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
       isAdmin: true,
     };
 
-    const jwtToken = jwt.sign(jwtPayload, jwtSecret, { expiresIn: '1h' });
+    const jwtToken = jwt.sign(jwtPayload, jwtSecret, { expiresIn: '7d' });
 
     res.redirect(`${frontendUrl}?token=${jwtToken}`);
   } catch (error) {
