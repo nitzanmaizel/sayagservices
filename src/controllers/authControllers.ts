@@ -79,8 +79,6 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    console.log('getProfile', { user });
-
     const { name, email, picture, isAdmin } = user;
     res.json({ name, email, picture, isAdmin });
   } catch (error) {

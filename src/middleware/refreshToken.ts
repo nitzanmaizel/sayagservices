@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import AdminUser from '../models/UserModal';
 import { refreshAccessToken } from '../services/authServices';
+import { oAuth2Client } from '../config/oauth2Client';
 
 export const refreshTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
@@ -25,6 +26,9 @@ export const refreshTokenMiddleware = async (req: Request, res: Response, next: 
       await refreshAccessToken(userId);
     }
 
+    oAuth2Client.setCredentials({ access_token: adminUser.accessToken });
+
+    req.oauth2Client = oAuth2Client;
     req.accessToken = adminUser.accessToken;
 
     next();
