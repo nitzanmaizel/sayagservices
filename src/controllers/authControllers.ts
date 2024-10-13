@@ -2,10 +2,9 @@ import { Request, Response } from 'express';
 import { google } from 'googleapis';
 import jwt from 'jsonwebtoken';
 
-import { getAdminUserByEmailService } from '../services/adminUsersServices';
 import { oAuth2Client, SCOPES } from '../config/oauth2Client';
-import { userTokens } from '../utils/userStore';
 import { UserInfoType } from '../types/UserType';
+import AdminUser from '../models/UserModal';
 
 const jwtSecret = process.env.JWT_SECRET as string;
 const frontendUrl = process.env.FRONTEND_URL as string;
@@ -35,17 +34,33 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
     const oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2' });
     const userInfo = await oauth2.userinfo.get();
 
-    const { id: userId, email, name, picture } = userInfo.data as UserInfoType;
-    userTokens[userId] = tokens;
+    const { id: googleId, email, name, picture } = userInfo.data as UserInfoType;
 
-    const adminUser = await getAdminUserByEmailService(email);
+    const adminUser = await AdminUser.findOne({ email });
 
     if (!adminUser || !adminUser.isAdmin) {
       res.redirect(`${frontendUrl}/admin/unauthorized`);
       return;
     }
 
-    const jwtPayload = { userId, email, name, picture, isAdmin: true };
+    adminUser.accessToken = tokens.access_token!;
+    adminUser.refreshToken = tokens.refresh_token || adminUser.refreshToken;
+    adminUser.tokenExpiryDate = tokens.expiry_date ? new Date(tokens.expiry_date) : undefined;
+
+    if (!adminUser.googleId) {
+      adminUser.googleId = googleId;
+    }
+
+    await adminUser.save();
+
+    const jwtPayload = {
+      userId: (adminUser._id as string).toString(),
+      googleId,
+      email,
+      name,
+      picture,
+      isAdmin: true,
+    };
 
     const jwtToken = jwt.sign(jwtPayload, jwtSecret, { expiresIn: '1h' });
 
@@ -58,13 +73,13 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 
 export const getProfile = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = req.body.user;
-    let tokens = userTokens[user.userId];
-
-    if (!tokens) {
+    const user = req.user;
+    if (!user) {
       res.status(401).send('User not authenticated');
       return;
     }
+
+    console.log('getProfile', { user });
 
     const { name, email, picture, isAdmin } = user;
     res.json({ name, email, picture, isAdmin });

@@ -20,13 +20,16 @@ connectDB();
 declare module 'express' {
   interface Request {
     user?: {
-      id: string | null;
-      email: string | null;
+      userId: string;
+      googleId?: string;
       name: string | null;
       picture: string | null;
       accessToken?: string;
+      email: string;
+      isAdmin: boolean;
     } | null;
     oauth2Client?: OAuth2Client;
+    accessToken?: string;
   }
 }
 
