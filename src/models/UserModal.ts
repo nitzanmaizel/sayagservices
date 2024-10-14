@@ -48,5 +48,5 @@ userSchema.plugin(encrypt, {
   requireAuthenticationCode: false,
 });
 
-const User = model<IUser>('AdminUser', userSchema);
+const User = model<IUser>('users', userSchema);
 export default User;

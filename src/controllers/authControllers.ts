@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 import { oAuth2Client, SCOPES } from '../config/oauth2Client';
 import { UserInfoType } from '../types/UserType';
-import AdminUser from '../models/UserModal';
+import User from '../models/UserModal';
 
 const jwtSecret = process.env.JWT_SECRET as string;
 const frontendUrl = process.env.FRONTEND_URL as string;
@@ -36,25 +36,25 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 
     const { id: googleId, email, name, picture } = userInfo.data as UserInfoType;
 
-    const adminUser = await AdminUser.findOne({ email });
+    const user = await User.findOne({ email });
 
-    if (!adminUser || !adminUser.isAdmin) {
+    if (!user || !user.isAdmin) {
       res.redirect(`${frontendUrl}/admin/unauthorized`);
       return;
     }
 
-    adminUser.accessToken = tokens.access_token!;
-    adminUser.refreshToken = tokens.refresh_token || adminUser.refreshToken;
-    adminUser.tokenExpiryDate = tokens.expiry_date ? new Date(tokens.expiry_date) : undefined;
+    user.accessToken = tokens.access_token!;
+    user.refreshToken = tokens.refresh_token || user.refreshToken;
+    user.tokenExpiryDate = tokens.expiry_date ? new Date(tokens.expiry_date) : undefined;
 
-    if (!adminUser.googleId) {
-      adminUser.googleId = googleId;
+    if (!user.googleId) {
+      user.googleId = googleId;
     }
 
-    await adminUser.save();
+    await user.save();
 
     const jwtPayload = {
-      userId: (adminUser._id as string).toString(),
+      userId: (user._id as string).toString(),
       googleId,
       email,
       name,
