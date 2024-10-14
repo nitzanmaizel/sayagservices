@@ -85,7 +85,7 @@ export const deleteUserService = async (id: string): Promise<IUser | null> => {
 /**
  * Finds an User by their email address.
  * @async
- * @function findAdminUserByEmail
+ * @function findUserByEmail
  * @param {string} email - The email address of the user to find.
  * @returns {Promise<IUser | null>} - Returns the found user or null if not found.
  * @throws Will throw an error if the database query fails.
