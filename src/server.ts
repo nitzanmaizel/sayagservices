@@ -21,7 +21,6 @@ declare module 'express' {
   interface Request {
     user?: {
       userId: string;
-      googleId?: string;
       name: string | null;
       picture: string | null;
       accessToken?: string;

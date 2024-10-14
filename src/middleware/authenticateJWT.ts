@@ -33,7 +33,6 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
 
     req.user = {
       userId: decoded.userId,
-      googleId: decoded.googleId,
       email: decoded.email,
       name: decoded.name,
       picture: decoded.picture,

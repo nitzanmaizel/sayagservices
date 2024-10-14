@@ -34,7 +34,7 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
     const oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2' });
     const userInfo = await oauth2.userinfo.get();
 
-    const { id: googleId, email, name, picture } = userInfo.data as UserInfoType;
+    const { email, name, picture } = userInfo.data as UserInfoType;
 
     const user = await User.findOne({ email });
 
@@ -47,15 +47,10 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
     user.refreshToken = tokens.refresh_token || user.refreshToken;
     user.tokenExpiryDate = tokens.expiry_date ? new Date(tokens.expiry_date) : undefined;
 
-    if (!user.googleId) {
-      user.googleId = googleId;
-    }
-
     await user.save();
 
     const jwtPayload = {
       userId: (user._id as string).toString(),
-      googleId,
       email,
       name,
       picture,
