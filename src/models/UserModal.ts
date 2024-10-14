@@ -1,7 +1,7 @@
 import { Schema, model, Document } from 'mongoose';
 import encrypt from 'mongoose-encryption';
 
-export interface IAdminUser extends Document {
+export interface IUser extends Document {
   name: string;
   email: string;
   isAdmin: boolean;
@@ -11,7 +11,7 @@ export interface IAdminUser extends Document {
   tokenExpiryDate?: Date;
 }
 
-const adminUserSchema = new Schema<IAdminUser>(
+const userSchema = new Schema<IUser>(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
@@ -41,12 +41,12 @@ if (sigKeyBuffer.length !== 64) {
   throw new Error('SIG_KEY must be 64 bytes after base64 decoding.');
 }
 
-adminUserSchema.plugin(encrypt, {
+userSchema.plugin(encrypt, {
   encryptionKey: encKey,
   signingKey: sigKey,
   encryptedFields: ['accessToken', 'refreshToken'],
   requireAuthenticationCode: false,
 });
 
-const AdminUser = model<IAdminUser>('AdminUser', adminUserSchema);
-export default AdminUser;
+const User = model<IUser>('AdminUser', userSchema);
+export default User;
