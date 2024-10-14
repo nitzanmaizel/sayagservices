@@ -135,7 +135,7 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
  */
 export const deleteProduct = async (req: Request, res: Response): Promise<void> => {
   try {
-    const productId = req.params.id;
+    const productId = req.params.productId;
     const deletedProduct = await deleteProductService(productId);
     if (!deletedProduct) {
       res.status(404).json({ error: 'Product not found' });
